@@ -38,7 +38,7 @@ extract "$ZIPFILE" 'uninstall.sh' "$MODPATH"
 logowl "Extract stub apks"
 extract "$ZIPFILE" 'stub/SafetyCoreStub.apk' "$STUB_DIR" "true"
 extract "$ZIPFILE" 'stub/SystemKeyVerifierStub.apk' "$STUB_DIR" "true"
-print_line
+print_line "70"
 logowl " "
 logowl "NOTICE & WARNING" "TIPS"
 logowl " "
@@ -51,7 +51,7 @@ logowl "2. Disable compare signatures" "TIPS"
 logowl " "
 logowl "TIPS: These options are often seen in Xposed module (e.g. Core Patch)"
 logowl " "
-print_line
+print_line "70"
 if [ -n "$VERIFY_DIR" ] && [ -d "$VERIFY_DIR" ] && [ "$VERIFY_DIR" != "/" ]; then
     rm -rf "$VERIFY_DIR"
 fi
