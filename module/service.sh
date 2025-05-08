@@ -5,6 +5,7 @@ CONFIG_DIR="/data/adb/antisafetycore"
 STUB_DIR="$CONFIG_DIR/stub"
 LOG_DIR="$CONFIG_DIR/logs"
 LOG_FILE="$LOG_DIR/asc_core_$(date +"%Y%m%dT%H%M%S").log"
+TMP_DIR="/data/local/tmp"
 
 MODULE_PROP="$MODDIR/module.prop"
 MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
@@ -15,7 +16,7 @@ MOD_ROOT_DIR=$(dirname "$MODDIR")
 
 check_module_env() {
 
-    logowl "Check $MOD_NAME environment"
+    logowl "Essential check"
     if [ ! -d "$CONFIG_DIR" ]; then
         logowl "Config dir $CONFIG_DIR does NOT exist!" "FATAL"
         return 1
@@ -27,10 +28,10 @@ check_module_env() {
 }
 
 deal_with_app() {
-    package_name=$1
+    pkg_name=$1
     opt=$2
 
-    if [ -z "$package_name" ]; then
+    if [ -z "$pkg_name" ]; then
         logowl "Package name is NOT ordered!" "ERROR"
         return 1
     fi
@@ -40,27 +41,32 @@ deal_with_app() {
     fi
 
     if [ "$opt" = "install" ]; then
-        logowl "Install package: $package_name"
-        logowl "Execute: pm install -i com.android.vending $package_name"
-        su -c "pm install -i com.android.vending $package_name"
+        pkg_basename=$(basename "$pkg_name")
+        pkg_tmp_path="$TMP_DIR/$pkg_basename"
+        cp "$pkg_name" "$TMP_DIR"
+        logowl "Install package: $pkg_name"
+        logowl "Execute: pm install -i com.android.vending $pkg_tmp_path"
+        su -c "pm install -i com.android.vending $pkg_tmp_path" 2>&1 | tee "$LOG_FILE"
     elif [ "$opt" = "uninstall" ]; then
-        logowl "Uninstall package: $package_name"
-        logowl "Execute: pm uninstall $package_name"
-        su -c "pm uninstall $package_name"
+        logowl "Uninstall package: $pkg_name"
+        logowl "Execute: pm uninstall $pkg_name"
+        su -c "pm uninstall $pkg_name" 2>&1 | tee "$LOG_FILE"
     fi
 
     result_deal_with_app=$?
     if [ "$result_deal_with_app" -eq 0 ]; then
         if [ "$opt" = "install" ]; then
-            logowl "$package_name has been installed"
+            logowl "$pkg_name has been installed"
             install_count=$((install_count + 1))
+            rm -f "$pkg_tmp_path"
         elif [ "$opt" = "uninstall" ]; then
-            logowl "$package_name has been slain"
+            logowl "$pkg_name has been slain"
             uninstall_count=$((uninstall_count + 1))
         fi
         return 0
     else
         logowl "Failed (code: $result_deal_with_app)"
+        [ "$opt" = "install" ] && rm -f "$pkg_tmp_path"
         return "$result_deal_with_app"
     fi
 
@@ -87,11 +93,11 @@ module_status_update() {
 
     DESCRIPTION="A Magisk module to fight against Google Android System SafetyCore and Android System Key Verifier."
     if [ $install_count -eq $max_install_count ]; then
-        DESCRIPTION="[✅All Done. ✨Root: $ROOT_SOL_DETAIL] A Magisk module to fight against Google Android System SafetyCore and Android System Key Verifier."
+        DESCRIPTION="[✅All Done.] A Magisk module to fight against Google Android System SafetyCore and Android System Key Verifier."
     elif [ $install_count -gt 0 ]; then
-        DESCRIPTION="[✅Done. ✨Root: $ROOT_SOL_DETAIL] A Magisk module to fight against Google Android System SafetyCore and Android System Key Verifier."
+        DESCRIPTION="[✅Partially Done.] A Magisk module to fight against Google Android System SafetyCore and Android System Key Verifier."
     else
-        DESCRIPTION="[❌No effect. Please check logs! ✨Root: $ROOT_SOL_DETAIL] A Magisk module to fight against Google Android System SafetyCore and Android System Key Verifier."
+        DESCRIPTION="[❌No effect. Please check logs!] A Magisk module to fight against Google Android System SafetyCore and Android System Key Verifier."
     fi
     
     update_config_value "description" "$DESCRIPTION" "$MODULE_PROP" "true"
@@ -107,6 +113,10 @@ module_intro >> "$LOG_FILE"
 show_system_info >> "$LOG_FILE"
 print_line
 logowl "Start service.sh"
+while [ "$(getprop sys.boot_completed)" != "1" ]; do
+    sleep 5
+done
+logowl "Boot complete!"
 check_module_env && install_stub_app && module_status_update
 print_line
 logowl "Service.sh case closed!"
