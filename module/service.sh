@@ -46,11 +46,11 @@ deal_with_app() {
         cp "$pkg_name" "$TMP_DIR"
         logowl "Install package: $pkg_name"
         logowl "Execute: pm install -i com.android.vending $pkg_tmp_path"
-        su -c "pm install -i com.android.vending $pkg_tmp_path" 2>&1 | tee "$LOG_FILE"
+        su -c "pm install -i com.android.vending $pkg_tmp_path"
     elif [ "$opt" = "uninstall" ]; then
         logowl "Uninstall package: $pkg_name"
         logowl "Execute: pm uninstall $pkg_name"
-        su -c "pm uninstall $pkg_name" 2>&1 | tee "$LOG_FILE"
+        su -c "pm uninstall $pkg_name"
     fi
 
     result_deal_with_app=$?
