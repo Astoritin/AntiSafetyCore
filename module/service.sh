@@ -2,7 +2,7 @@
 MODDIR=${0%/*}
 
 CONFIG_DIR="/data/adb/antisafetycore"
-STUB_DIR="$CONFIG_DIR/stub"
+PH_DIR="$CONFIG_DIR/placeholder"
 LOG_DIR="$CONFIG_DIR/logs"
 LOG_FILE="$LOG_DIR/asc_core_$(date +"%Y%m%dT%H%M%S").log"
 TMP_DIR="/data/local/tmp"
@@ -20,8 +20,8 @@ check_module_env() {
     if [ ! -d "$CONFIG_DIR" ]; then
         logowl "Config dir $CONFIG_DIR does NOT exist!" "FATAL"
         return 1
-    elif [ ! -d "$STUB_DIR" ]; then
-        logowl "Stub dir $STUB_DIR does NOT exist!" "FATAL"
+    elif [ ! -d "$PH_DIR" ]; then
+        logowl "Placeholder dir $PH_DIR does NOT exist!" "FATAL"
         return 1
     fi
 
@@ -87,35 +87,38 @@ deal_with_app() {
 
 }
 
-install_stub_app()  {
+install_placeholder_app()  {
 
-    logowl "Install mirror stub APPs"
+    logowl "Install placeholder APPs"
+
+    DESCRIPTION="A Magisk module to fight against Google Android System SafetyCore and Android System Key Verifier."
 
     desc_sc=""
     desc_kv=""
+    desc_state=""
 
     deal_with_app "com.google.android.safetycore" "uninstall"
     deal_with_app "com.google.android.contactkeys" "uninstall"
 
-    [ -f "$STUB_DIR/SafetyCoreStub.apk" ] && deal_with_app "$STUB_DIR/SafetyCoreStub.apk" "install" && desc_sc="✅SafetyCore neutralized."
-    [ -f "$STUB_DIR/SystemKeyVerifierStub.apk" ] && deal_with_app "$STUB_DIR/SystemKeyVerifierStub.apk" "install" && desc_kv="✅KeyVerifier neutralized."
+    [ -f "$PH_DIR/SafetyCorePlaceHolder.apk" ] && deal_with_app "$PH_DIR/SafetyCorePlaceHolder.apk" "install" && desc_sc="✅SafetyCore neutralized. "
+    [ -f "$PH_DIR/KeyVerifierPlaceHolder.apk" ] && deal_with_app "$PH_DIR/KeyVerifierPlaceHolder.apk" "install" && desc_kv="✅KeyVerifier neutralized."
 
     if [ -n "$desc_sc" ] && [ -n "$desc_kv" ]; then
-        DESCRIPTION="[✅All Done. $desc_sc $desc_kv] A Magisk module to fight against Google Android System SafetyCore and Android System Key Verifier."
+        desc_state="✅All Done."
     elif [ -n "$desc_sc" ]; then
-        DESCRIPTION="[✅Done. $desc_sc] A Magisk module to fight against Google Android System SafetyCore and Android System Key Verifier."
+        desc_state="✅Done."
     elif [ -n "$desc_kv" ]; then
-        DESCRIPTION="[✅Done. $desc_kv] A Magisk module to fight against Google Android System SafetyCore and Android System Key Verifier."
+        desc_state="✅Done."
     else
-        DESCRIPTION="[❌No effect. Maybe something went wrong?] A Magisk module to fight against Google Android System SafetyCore and Android System Key Verifier."
+        desc_state="❌No effect. Maybe something went wrong?"
     fi
+
+    DESCRIPTION="[$desc_state ${desc_sc}${desc_kv}] A Magisk module to fight against Google Android System SafetyCore and Android System Key Verifier."
     update_config_value "description" "$DESCRIPTION" "$MODULE_PROP" "true"
 
 }
 
 . "$MODDIR/aautilities.sh"
-
-DESCRIPTION="A Magisk module to fight against Google Android System SafetyCore and Android System Key Verifier."
 
 init_logowl "$LOG_DIR"
 module_intro >> "$LOG_FILE"
@@ -126,6 +129,6 @@ while [ "$(getprop sys.boot_completed)" != "1" ]; do
     sleep 5
 done
 logowl "Boot complete!"
-check_module_env && install_stub_app
+check_module_env && install_placeholder_app
 print_line
 logowl "service.sh case closed!"
