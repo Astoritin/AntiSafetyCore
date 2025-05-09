@@ -324,11 +324,11 @@ init_variables() {
 
     case $awk_exit_status in
         1)
-            logowl "Key '$key' not found or unclosed quote in $config_file" "ERROR" >&2
+            logowl "Key '$key' does NOT exist in $config_file" "ERROR" >&2
             return 5
             ;;
         0)  ;;
-        *)  logowl "Error processing key '$key' in $config_file" "ERROR" >&2
+        *)  logowl "Error processing key '$key' in $config_file (code: $awk_exit_status)" "ERROR" >&2
             return 6
             ;;
     esac
