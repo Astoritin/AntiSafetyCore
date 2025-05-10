@@ -20,6 +20,11 @@ So, to stop Google from installing quietly in the background, just installing a 
 Even with its special system level permissions, Google can't do downgrade installations.
 This effectively blocks Google from repeatedly installing stuff like SafetyCore and Key Verifier on the sly.
 
+### Notes
+
+1. If you have installed and enabled modules like [Core Patch](https://github.com/LSPosed/CorePatch) or similar options, Google may successfully perform a background silent update of the placeholder app. When these options are enabled, your ROM will ignore the different signatures and allow Google's actions.
+2. To reduce resource consumption and system intervention, this module only uninstalls the two apps and replaces them with placeholder apps at booting. This means that if Google successfully replaces them with the original apps, simply restart your device to restore the placeholder apps is possible.
+
 ## Help and Support
 - If you encounter any problems, please [click here](https://github.com/Astoritin/AntiSafetyCore/issues) to submit feedback.
 - [Pull Request](https://github.com/Astoritin/AntiSafetyCore/pulls) is always welcome to improve this module.
