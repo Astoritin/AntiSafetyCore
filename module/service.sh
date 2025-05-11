@@ -2,8 +2,9 @@
 MODDIR=${0%/*}
 
 CONFIG_DIR="/data/adb/antisafetycore"
-PH_DIR="$CONFIG_DIR/placeholder"
+
 LOG_DIR="$CONFIG_DIR/logs"
+PH_DIR="$CONFIG_DIR/placeholder"
 LOG_FILE="$LOG_DIR/asc_core_$(date +"%Y%m%dT%H%M%S").log"
 TMP_DIR="/data/local/tmp"
 
@@ -11,6 +12,8 @@ MODULE_PROP="$MODDIR/module.prop"
 MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_AUTHOR="$(sed -n 's/^author=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_VER="$(sed -n 's/^version=\(.*\)/\1/p' "$MODULE_PROP") ($(sed -n 's/^versionCode=\(.*\)/\1/p' "$MODULE_PROP"))"
+MOD_INTRO="A Magisk module to fight against Google Android System SafetyCore and Android System Key Verifier."
+
 MOD_DESC_OLD="$(sed -n 's/^description=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_ROOT_DIR=$(dirname "$MODDIR")
 
@@ -91,8 +94,6 @@ install_placeholder_app()  {
 
     logowl "Install placeholder APPs"
 
-    DESCRIPTION="A Magisk module to fight against Google Android System SafetyCore and Android System Key Verifier."
-
     desc_sc=""
     desc_kv=""
     desc_state=""
@@ -113,7 +114,7 @@ install_placeholder_app()  {
         desc_state="❌No effect. Maybe something went wrong?"
     fi
 
-    DESCRIPTION="[$desc_state ${desc_sc}${desc_kv}] A Magisk module to fight against Google Android System SafetyCore and Android System Key Verifier."
+    DESCRIPTION="[$desc_state ${desc_sc}${desc_kv}] $MOD_INTRO"
     update_config_value "description" "$DESCRIPTION" "$MODULE_PROP" "true"
 
 }
