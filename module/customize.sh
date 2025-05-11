@@ -2,11 +2,15 @@
 SKIPUNZIP=1
 
 CONFIG_DIR="/data/adb/antisafetycore"
-PH_DIR="$CONFIG_DIR/placeholder"
+
 LOG_DIR="$CONFIG_DIR/logs"
+PH_DIR="$CONFIG_DIR/placeholder"
+
 VERIFY_DIR="$TMPDIR/.aa_verify"
+
 MOD_NAME="$(grep_prop name "$TMPDIR/module.prop")"
 MOD_VER="$(grep_prop version "$TMPDIR/module.prop") ($(grep_prop versionCode "$TMPDIR/module.prop"))"
+MOD_INTRO="A Magisk module to fight against Google Android System SafetyCore and Android System Key Verifier."
 
 [ ! -d "$VERIFY_DIR" ] && mkdir -p "$VERIFY_DIR"
 
@@ -68,5 +72,5 @@ if [ -n "$VERIFY_DIR" ] && [ -d "$VERIFY_DIR" ] && [ "$VERIFY_DIR" != "/" ]; the
 fi
 set_permission_recursive "$MODPATH" 0 0 0755 0644
 logowl "Welcome to use $MOD_NAME!"
-DESCRIPTION="[⏳Reboot to take effect.] A Magisk module to fight against Google Android System SafetyCore and Android System Key Verifier."
+DESCRIPTION="[⏳Reboot to take effect.] $MOD_INTRO"
 update_config_value "description" "$DESCRIPTION" "$MODPATH/module.prop" "true"
