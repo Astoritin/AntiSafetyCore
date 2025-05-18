@@ -42,16 +42,6 @@ is_apatch() {
     return 1
 }
 
-is_recovery() {
-    if [ "$BOOTMODE" = "false" ]; then
-        ROOT_SOL="Recovery"
-    else
-        ROOT_SOL="Unknown"
-    fi
-    logowl "Please install this module in Magisk / KernelSU / APatch APP!" "FATAL"
-    abort "Install module in Recovery/Unknown is not supported!"
-}
-
 install_env_check() {
 
     MAGISK_BRANCH_NAME="Official"
@@ -90,7 +80,8 @@ install_env_check() {
     fi
 
     if [ "$ROOT_SOL_COUNT" -lt 1 ]; then
-        is_recovery
+        ROOT_SOL="Unknown"
+        ROOT_SOL_DETAIL="Unknown"
     fi
 
 }
@@ -186,6 +177,11 @@ init_variables() {
     key="$1"
     config_file="$2"
 
+    if [ -z "$key" ]; then
+        logowl "Key is NOT ordered! (1)" "ERROR"
+        return 1
+    fi
+
     if [ ! -f "$config_file" ]; then
         logowl "Config file $config_file does NOT exist (1)" "ERROR" >&2
         return 1
@@ -247,11 +243,11 @@ init_variables() {
 
     case $awk_exit_status in
         1)
-            logowl "Key '$key' does NOT exist in $config_file (5)" "ERROR" >&2
+            logowl "Key '$key' does NOT exist in $config_file (5)" "WARN" >&2
             return 5
             ;;
         0)  ;;
-        *)  logowl "Error processing key '$key' in $config_file ($awk_exit_status)" "ERROR" >&2
+        *)  logowl "Error occurred as processing key '$key' in $config_file ($awk_exit_status)" "WARN" >&2
             return 6
             ;;
     esac
@@ -266,49 +262,57 @@ init_variables() {
     fi
 }
 
-check_value_safety(){
+check_value_safety() {
 
     key="$1"
     value="$2"
 
-    if [ -z "$key" ]; then
-        logowl "Key is NOT ordered! (1)" "ERROR"
+    check_param_safety "$key"
+    result_check_key=$?
+
+    if [ "$result_check_key" = 0 ]; then
+        if [ "$value" = true ] || [ "$value" = false ]; then
+            logowl "Verified $key=$value (boolean)"
+            return 0
+        fi
+    fi
+
+    check_param_safety "$value"
+    result_check_value=$?
+
+    if [ "$result_check_key" = 0 ] && [ "$result_check_value" = 0 ]; then
+        logowl "Verified $key=$value"
+        return 0
+    else
+        logowl "Safety check failed, key: $result_check_key, value: $result_check_value)"
         return 1
     fi
 
-    if [ -z "$value" ]; then
-        logowl "Value is NOT ordered! (2)" "ERROR"
-        return 2
-    fi
+}
 
-    value=$(printf "%s" "$value" | sed 's/'\''/'\\\\'\'''\''/g' | sed 's/[$;&|<>`"()]/\\&/g')
+check_param_safety() {
+    param=$1
 
-    if [ "$value" = true ] || [ "$value" = false ]; then
-        logowl "Verified $key=$value (boolean)"
-        return 0
-    fi
+    [ -z "$param" ] && return 1
 
-    first_char=$(printf '%s' "$value" | cut -c1)
-    if [ "$first_char" = "#" ]; then
-        logowl "Detect comment symbol (3)"
-        return 3
-    fi
+    param=$(printf "%s" "$param" | sed 's/'\''/'\\\\'\'''\''/g' | sed 's/[$;&|<>`"()]/\\&/g')
+    first_char=$(printf '%s' "$param" | cut -c1)
 
-    value=$(echo "$value" | cut -d'#' -f1 | xargs)
+    [ "$first_char" = "#" ] && return 2
+    
+    param=$(echo "$param" | cut -d'#' -f1 | xargs)
 
     regex='^[a-zA-Z0-9/_\. @-]*$'
     dangerous_chars='[`$();|<>]'
 
-    if echo "$value" | grep -Eq "$dangerous_chars"; then
-        logowl "Key '$key' contains potential dangerous characters (3)" "WARN" >&2
+    if echo "$param" | grep -Eq "$dangerous_chars"; then
         return 3
     fi
-    if ! echo "$value" | grep -Eq "$regex"; then
-        logowl "Key '$key' contains illegal characters (4)" "WARN" >&2
+
+    if ! echo "$param" | grep -Eq "$regex"; then
         return 4
     fi
 
-    logowl "Verified $key=$value"
     return 0
 }
 
@@ -318,64 +322,43 @@ verify_variables() {
     config_var_value="$2"
     validation_pattern="$3"
     default_value="${4:-}"
+
     script_var_name=$(echo "$config_var_name" | tr '[:lower:]' '[:upper:]')
 
     if [ -z "$config_var_name" ] || [ -z "$config_var_value" ] || [ -z "$validation_pattern" ]; then
-        logowl "Variable name or value or pattern is NOT ordered! (1)" "WARN"
         return 1    
     elif echo "$config_var_value" | grep -qE "$validation_pattern"; then
         export "$script_var_name"="$config_var_value"
         logowl "Set $script_var_name=$config_var_value" "TIPS"
-        return $result_export_var
+        return 0
     else
-        logowl "Variable value does NOT match the pattern" "WARN"
-        logowl "Invalid variable: $script_var_name=$config_var_value" "WARN"
         if [ -n "$default_value" ]; then
             if eval "[ -z \"\${$script_var_name+x}\" ]"; then
-                logowl "Set default value $script_var_name=$default_value" "TIPS"
+                logowl "Set $script_var_name=$default_value (default)" "TIPS"
                 export "$script_var_name"="$default_value"
-            else
-                logowl "Variable $script_var_name is set already" "WARN"
             fi
-        else
-            logowl "No default value provided for $script_var_name" "WARN"
         fi
+        return 2
     fi
 }
-
 
 update_config_value() {
 
     key_name="$1"
     key_value="$2"
     file_path="$3"
-    keep_quiet="${4:-false}"
 
-    if [ -z "$key_name" ] || [ -z "$key_value" ] || [ -z "$file_path" ]; then
-        [ "$keep_quiet" = false ] && logowl "Key name/value/file path is NOT provided yet! (1)" "ERROR"
-        return 1
-    elif [ ! -f "$file_path" ]; then
-        [ "$keep_quiet" = false ] && logowl "$file_path is NOT a valid file! (2)" "ERROR"
-        return 2
-    fi
+    [ -z "$key_name" ] || [ -z "$key_value" ] || [ -z "$file_path" ] && return 1
+    [ ! -f "$file_path" ] && return 2
 
     sed -i "/^${key_name}=/c\\${key_name}=${key_value}" "$file_path"
 
     result_update_value=$?
-    if [ "$result_update_value" -eq 0 ]; then
-        [ "$keep_quiet" = false ] && logowl "Update $key_name=$key_value"
-        return 0
-    else
-        return "$result_update_value"
-    fi
+    return "$result_update_value"
 
 }
 
 debug_print_values() {
-
-    debug="${1:-false}"
-
-    [ "$debug" = false ] && return 0
 
     print_line
     logowl "All Environment variables"
@@ -400,29 +383,17 @@ file_compare() {
 
     file_a="$1"
     file_b="$2"
-    if [ -z "$file_a" ] || [ -z "$file_b" ]; then
-        logowl "Value a or value b does NOT exist!" "WARN"
-        return 2
-    fi
-    if [ ! -f "$file_a" ]; then
-        logowl "a is NOT a file!" "WARN"
-        return 3
-    fi
-    if [ ! -f "$file_b" ]; then
-        logowl "b is NOT a file!" "WARN"
-        return 3
-    fi
+    
+    [ -z "$file_a" ] || [ -z "$file_b" ] && return 2
+    
+    [ ! -f "$file_a" ] || [ ! -f "$file_b" ] && return 3
     
     hash_file_a=$(sha256sum "$file_a" | awk '{print $1}')
     hash_file_b=$(sha256sum "$file_b" | awk '{print $1}')
     
-    if [ "$hash_file_a" == "$hash_file_b" ]; then
-        logowl "File $file_a and $file_b are the same file"
-        return 0
-    else
-        logowl "File $file_a and $file_b are the different file"
-        return 1
-    fi
+    [ "$hash_file_a" = "$hash_file_b" ] && return 0
+    [ "$hash_file_a" != "$hash_file_b" ] && return 1
+
 }
 
 abort_verify() {
@@ -510,8 +481,6 @@ set_permission() {
 }
 
 set_permission_recursive() {
-
-    logowl "Set permission"
 
     find $1 -type d 2>/dev/null | while read dir; do
         set_permission $dir $2 $3 $4 $6
