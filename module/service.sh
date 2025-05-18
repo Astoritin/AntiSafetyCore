@@ -34,14 +34,7 @@ deal_with_app() {
     pkg_name=$1
     opt=$2
 
-    if [ -z "$pkg_name" ]; then
-        logowl "Package name is NOT ordered!" "ERROR"
-        return 1
-    fi
-    if [ -z "$opt" ]; then
-        logowl "Operation is NOT ordered!" "ERROR"
-        return 1
-    fi
+    [ -z "$pkg_name" ] || [ -z "$opt" ] && return 1
 
     pkg_basename=$(basename "$pkg_name")
     pkg_tmp_path="$TMP_DIR/$pkg_basename"
@@ -106,9 +99,7 @@ install_placeholder_app()  {
 
     if [ -n "$desc_sc" ] && [ -n "$desc_kv" ]; then
         desc_state="✅All Done."
-    elif [ -n "$desc_sc" ]; then
-        desc_state="✅Done."
-    elif [ -n "$desc_kv" ]; then
+    elif [ -n "$desc_sc" ] || [ -n "$desc_kv" ]; then
         desc_state="✅Done."
     else
         desc_state="❌No effect. Maybe something went wrong?"
