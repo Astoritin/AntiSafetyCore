@@ -1,5 +1,5 @@
 ## AntiSafetyCore / 反 SafetyCore
-A Magisk module to fight against Android System SafetyCore and Android System Key Verifier installed by Google quietly / 一个对抗被 Google 静默安装的 SafetyCore 和 Key Verifier 的 Magisk 模块
+A Magisk module to fight against Android System SafetyCore and Android System Key Verifier installed by Google quietly / 一个对抗 Google 静默安装的 SafetyCore 和 Key Verifier 的 Magisk 模块
 
 ### 1.1.0
 
