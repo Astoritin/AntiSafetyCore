@@ -101,27 +101,14 @@ module_intro() {
 }
 
 init_logowl() {
-
     LOG_DIR="$1"
 
-    if [ -z "$LOG_DIR" ]; then
-        logowl "Log dir is NOT ordered! (1)" "ERROR"
-        return 1
-    fi
-
-    if [ ! -d "$LOG_DIR" ]; then
-        logowl "Log dir $LOG_DIR does NOT exist"
-        mkdir -p "$LOG_DIR" || {
-            logowl "Failed to create $LOG_DIR (2)" "ERROR"
-            return 2
-        }
-        logowl "Created $LOG_DIR"
-    fi
+    [ -z "$LOG_DIR" ] && return 1
+    [ ! -d "$LOG_DIR" ] && mkdir -p "$LOG_DIR" && logowl "Created $LOG_DIR"
 
 }
 
 logowl() {
-
     LOG_MSG="$1"
     LOG_MSG_LEVEL="$2"
     LOG_MSG_PREFIX=""
@@ -129,8 +116,8 @@ logowl() {
     [ -z "$LOG_MSG" ] && return 1
 
     case "$LOG_MSG_LEVEL" in
-        "TIPS") LOG_MSG_PREFIX="* " ;;
-        "WARN") LOG_MSG_PREFIX="- Warn: " ;;
+        "TIPS") LOG_MSG_PREFIX="> " ;;
+        "WARN") LOG_MSG_PREFIX="- warn: " ;;
         "ERROR") LOG_MSG_PREFIX="! ERROR: " ;;
         "FATAL") LOG_MSG_PREFIX="× FATAL: " ;;
         "SPACE") LOG_MSG_PREFIX="  " ;;
@@ -177,15 +164,8 @@ init_variables() {
     key="$1"
     config_file="$2"
 
-    if [ -z "$key" ]; then
-        logowl "Key is NOT ordered! (1)" "ERROR"
-        return 1
-    fi
-
-    if [ ! -f "$config_file" ]; then
-        logowl "Config file $config_file does NOT exist (1)" "ERROR" >&2
-        return 1
-    fi
+    [ -z "$key" ] || [ -z "$config_file" ] && return 1
+    [ ! -f "$config_file" ] && return 2
 
     value=$(awk -v key="$key" '
         BEGIN {
@@ -239,15 +219,15 @@ init_variables() {
         }
     ' "$config_file")
 
-    awk_exit_status=$?
+    awk_exit_state=$?
 
-    case $awk_exit_status in
+    case $awk_exit_state in
         1)
-            logowl "Key '$key' does NOT exist in $config_file (5)" "WARN" >&2
+            logowl "Key "$key" does NOT exist in $config_file (5)" "WARN" >&2
             return 5
             ;;
         0)  ;;
-        *)  logowl "Error occurred as processing key '$key' in $config_file ($awk_exit_status)" "WARN" >&2
+        *)  logowl "Error occurred as processing key "$key" in $config_file ($awk_exit_state)" "WARN" >&2
             return 6
             ;;
     esac
@@ -263,7 +243,6 @@ init_variables() {
 }
 
 check_value_safety() {
-
     key="$1"
     value="$2"
 
@@ -284,7 +263,7 @@ check_value_safety() {
         logowl "Verified $key=$value"
         return 0
     else
-        logowl "Safety check failed, key: $result_check_key, value: $result_check_value)"
+        logowl "Safety check failed (key $result_check_key, value $result_check_value)"
         return 1
     fi
 
@@ -317,17 +296,16 @@ check_param_safety() {
 }
 
 verify_variables() {
-  
     config_var_name="$1"
     config_var_value="$2"
     validation_pattern="$3"
     default_value="${4:-}"
 
+    [ -z "$config_var_name" ] || [ -z "$config_var_value" ] || [ -z "$validation_pattern" ] && return 1    
+    
     script_var_name=$(echo "$config_var_name" | tr '[:lower:]' '[:upper:]')
 
-    if [ -z "$config_var_name" ] || [ -z "$config_var_value" ] || [ -z "$validation_pattern" ]; then
-        return 1    
-    elif echo "$config_var_value" | grep -qE "$validation_pattern"; then
+    if echo "$config_var_value" | grep -qE "$validation_pattern"; then
         export "$script_var_name"="$config_var_value"
         logowl "Set $script_var_name=$config_var_value" "TIPS"
         return 0
@@ -343,7 +321,6 @@ verify_variables() {
 }
 
 update_config_value() {
-
     key_name="$1"
     key_value="$2"
     file_path="$3"
@@ -380,12 +357,10 @@ show_system_info() {
 }
 
 file_compare() {
-
     file_a="$1"
     file_b="$2"
     
     [ -z "$file_a" ] || [ -z "$file_b" ] && return 2
-    
     [ ! -f "$file_a" ] || [ ! -f "$file_b" ] && return 3
     
     hash_file_a=$(sha256sum "$file_a" | awk '{print $1}')
@@ -398,9 +373,7 @@ file_compare() {
 
 abort_verify() {
 
-    if [ -n "$VERIFY_DIR" ] && [ -d "$VERIFY_DIR" ] && [ "$VERIFY_DIR" != "/" ]; then
-        rm -rf "$VERIFY_DIR"
-    fi
+    [ -n "$VERIFY_DIR" ] && [ -d "$VERIFY_DIR" ] && [ "$VERIFY_DIR" != "/" ] && rm -rf "$VERIFY_DIR"
     print_line
     logowl "$1" "WARN"
     abort "This zip may be corrupted or have been maliciously modified!"
@@ -444,29 +417,22 @@ extract() {
 }
 
 clean_old_logs() {
- 
     log_dir="$1"
     files_max="$2"
     
-    if [ -z "$log_dir" ] || [ ! -d "$log_dir" ]; then
-        logowl "$log_dir is not found or is not a dir! (1)" "ERROR"
-        return 1
-    fi
+    [ -z "$log_dir" ] || [ ! -d "$log_dir" ] && return 1
+    [ -z "$files_max" ] && files_max=30
 
-    if [ -z "$files_max" ]; then
-        files_max=30
-    fi
-
-    logowl "Current log dir: $log_dir"
     files_count=$(ls -1 "$log_dir" | wc -l)
     if [ "$files_count" -gt "$files_max" ]; then
-        logowl "Clear old logs ($files_count as max allowed $files_max)"
+        logowl "Clear old log files ($files_count as max allowed $files_max)"
         ls -1t "$log_dir" | tail -n +$((files_max + 1)) | while read -r file; do
             rm -f "$log_dir/$file"
         done
     else
         logowl "$files_count files in $log_dir (max allowed $files_max)"
     fi
+    return 0
 }
 
 set_permission() {
@@ -496,13 +462,8 @@ clean_duplicate_items() {
 
     filed=$1
 
-    if [ -z "$filed" ]; then
-        logowl "File is NOT provided! (1)" "ERROR"
-        return 1
-    elif [ ! -f "$filed" ]; then
-        logowl "$filed does NOT exist or is NOT a file! (2)" "ERROR"
-        return 2
-    fi
+    [ -z "$filed" ] && return 1
+    [ ! -f "$filed" ] && return 2
 
     awk '!seen[$0]++' "$filed" > "${filed}.tmp"
     mv "${filed}.tmp" "$filed"
@@ -511,13 +472,9 @@ clean_duplicate_items() {
 }
 
 debug_get_prop() {
-
     prop_name=$1
 
-    if [ -z "$prop_name" ]; then
-        logowl "Property name does NOT exist! (1)" "WARN"
-        return 1
-    fi
+    [ -z "$prop_name" ] && return 1
     logowl "$prop_name=$(getprop "$prop_name")"
     return 0
 }
