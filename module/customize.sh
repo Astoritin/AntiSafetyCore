@@ -10,7 +10,7 @@ VERIFY_DIR="$TMPDIR/.aa_verify"
 
 MOD_NAME="$(grep_prop name "$TMPDIR/module.prop")"
 MOD_VER="$(grep_prop version "$TMPDIR/module.prop") ($(grep_prop versionCode "$TMPDIR/module.prop"))"
-MOD_INTRO="A Magisk module to fight against Google Android System SafetyCore and Android System Key Verifier."
+MOD_INTRO="A Magisk module to fight against Android System SafetyCore and Android System Key Verifier installed by Google quietly."
 
 [ ! -d "$VERIFY_DIR" ] && mkdir -p "$VERIFY_DIR"
 
