@@ -1,7 +1,7 @@
 English | [简体中文](README_ZH-CN.md)
 
 # **Anti SafetyCore / 反 SafetyCore**
-A Magisk module to fight against SafetyCore and Key Verifier / 一个对抗 SafetyCore 和 Key Verifier 的 Magisk 模块
+A Magisk module to fight against Android System SafetyCore and Android System Key Verifier installed by Google quietly.
 
 ## Supported Root Solution
 [Magisk](https://github.com/topjohnwu/Magisk) (Recommended!) 丨 [KernelSU](https://github.com/tiann/KernelSU) (Recommended!) 丨 [APatch](https://github.com/bmax121/APatch) (Not test yet)
