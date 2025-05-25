@@ -1,7 +1,7 @@
 [English](README.md) | 简体中文
 
 # **反 SafetyCore / Anti SafetyCore**
-一个对抗 Google 静默安装的 SafetyCore 和 Key Verifier 的 Magisk 模块
+一个对抗 Google 静默安装的 SafetyCore 和 Key Verifier 的 Magisk 模块。
 
 ## 支持的 Root 方案
 [Magisk](https://github.com/topjohnwu/Magisk) (推荐!) 丨 [KernelSU](https://github.com/tiann/KernelSU) (推荐!) 丨 [APatch](https://github.com/bmax121/APatch) (尚未测试，理论可用)
@@ -21,8 +21,10 @@
 
 ## 注意
 
-1. 如果你安装并启用了 [核心破解](https://github.com/LSPosed/CorePatch) 之类的模块，或启用了类似的选项，那么谷歌可能成功后台静默换掉占位符应用，因为在启用这些选项的前提下，你的 ROM 会忽视不同签名这一情况并放任谷歌的恶劣行径。
-2. 为了减少资源占用和系统干预，本模块仅在每次开机时卸载这两个应用并替换安装为占位符应用。也就是说如果被谷歌成功替换回原版应用，重新启动你的设备即可恢复为占位符应用。
+1. 如果你安装并启用了 [核心破解](https://github.com/LSPosed/CorePatch) 之类的模块，或启用了类似的选项，那么谷歌可能成功后台静默换掉占位符应用。
+> 因为在启用这些选项的前提下，你的 ROM 会忽视不同签名这一情况并放任谷歌的恶劣行径。
+2. 为了减少资源占用和系统干预，本模块仅在每次开机时卸载这两个应用并替换安装为占位符应用。
+> 也就是说如果被谷歌成功替换回原版应用，重新启动你的设备即可恢复为占位符应用。
 
 ## 帮助与支持
 - 如果遇到问题，请点击 [此处](https://github.com/Astoritin/AntiSafetyCore/issues) 提交反馈
