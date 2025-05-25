@@ -1,20 +1,11 @@
 ## AntiSafetyCore / 反 SafetyCore
-A Magisk module to fight against SafetyCore and Key Verifier / 一个对抗 SafetyCore 和 Key Verifier 的 Magisk 模块
+A Magisk module to fight against Android System SafetyCore and Android System Key Verifier installed by Google quietly / 一个对抗被 Google 静默安装的 SafetyCore 和 Key Verifier 的 Magisk 模块
 
-### 1.0.2
+### 1.1.0
 
-- optimize minor code
+- Drastically reduce the size of placeholder apks
+- 大幅度缩减占位符 apk 的大小
+- Optimize minor code
 - 优化部分代码
-- correct specific nouns
-- 更正部分名词
-- adjust minSDK for placeholder APK to 19 (Android 4.4)
-- 调整占位符APK的最小SDK为19 (即安卓4.4)
-
-### 1.0.1
-
-- Update minor code
-- 更新少量代码
-
-### 1.0.0
-- Initial build / the first page
-  第一页
+- Remove useless action.sh since the low usage frequency
+- 由于低使用频率，无用的 action.sh 已被移除
