@@ -12,8 +12,7 @@ MODULE_PROP="$MODDIR/module.prop"
 MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_AUTHOR="$(sed -n 's/^author=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_VER="$(sed -n 's/^version=\(.*\)/\1/p' "$MODULE_PROP") ($(sed -n 's/^versionCode=\(.*\)/\1/p' "$MODULE_PROP"))"
-MOD_INTRO="A Magisk module to fight against Google Android System SafetyCore and Android System Key Verifier."
-MOD_SLOGAN="Those rogue apps are now history, replaced by harmless placeholders, as if a rowdy party - crasher was shown the door and a polite guest took their place."
+MOD_INTRO="A Magisk module to fight against Android System SafetyCore and Android System Key Verifier installed by Google quietly."
 
 MOD_DESC_OLD="$(sed -n 's/^description=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_ROOT_DIR=$(dirname "$MODDIR")
@@ -100,7 +99,6 @@ install_placeholder_app()  {
 
     if [ -n "$desc_sc" ] && [ -n "$desc_kv" ]; then
         desc_state="✅All Done."
-        MOD_INTRO="$MOD_SLOGAN"
     elif [ -n "$desc_sc" ] || [ -n "$desc_kv" ]; then
         desc_state="✅Done."
     else
