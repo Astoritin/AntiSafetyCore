@@ -5,6 +5,8 @@ A Magisk module to fight against Android System SafetyCore and Android System Ke
 
 - Drastically reduce the size of placeholder apks
 - 大幅度缩减占位符 apk 的大小
+- upgrade target SDK to 36 (Android 16)
+- 提升目标SDK至36 (即安卓16)
 - Optimize minor code
 - 优化部分代码
 - Remove useless action.sh since the low usage frequency
