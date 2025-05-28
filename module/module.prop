@@ -3,5 +3,5 @@ name=Anti SafetyCore
 version=v1.1.0
 versionCode=10
 author=Astoritin Ambrosius
-description=A Magisk module to fight against Google Android System SafetyCore and Android System Key Verifier.
+description=A Magisk module to fight against Safety Core and Key Verifier installed by Google quietly.
 updateJson=https://raw.githubusercontent.com/Astoritin/AntiSafetyCore/main/webpage/update.json
