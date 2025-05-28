@@ -11,3 +11,5 @@ A Magisk module to fight against Android System SafetyCore and Android System Ke
 - 优化部分代码
 - Remove useless action.sh since the low usage frequency
 - 由于低使用频率，无用的 action.sh 已被移除
+- Remove logging code since it is useless for this module too
+- 由于对此模块而言无用，日志代码已被移除
