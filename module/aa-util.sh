@@ -374,8 +374,7 @@ file_compare() {
 abort_verify() {
 
     [ -n "$VERIFY_DIR" ] && [ -d "$VERIFY_DIR" ] && [ "$VERIFY_DIR" != "/" ] && rm -rf "$VERIFY_DIR"
-    print_line
-    logowl "$1" "WARN"
+    logowl "$1" "ERROR"
     abort "This zip may be corrupted or have been maliciously modified!"
 
 }
@@ -477,4 +476,14 @@ debug_get_prop() {
     [ -z "$prop_name" ] && return 1
     logowl "$prop_name=$(getprop "$prop_name")"
     return 0
+}
+
+do_resetprop() {
+
+    prop_name=$1
+    prop_expect_value=$2
+    prop_current_value=$(resetprop "$prop_name")
+    
+    [ -z "$prop_current_value" ] || [ "$prop_current_value" = "$prop_expect_value" ] || resetprop "$prop_name" "$prop_expect_value"
+
 }
