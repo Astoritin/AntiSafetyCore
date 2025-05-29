@@ -72,7 +72,7 @@ install_placeholder_app()  {
     fi
 
     DESCRIPTION="[$desc_state] $MOD_INTRO"
-    update_config_value "description" "$DESCRIPTION" "$MODULE_PROP" "true"
+    update_config_var "description" "$DESCRIPTION" "$MODULE_PROP" "true"
 
 }
 
