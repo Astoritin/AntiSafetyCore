@@ -127,9 +127,9 @@ logowl() {
 
     if [ -n "$LOG_FILE" ]; then
         if [ "$LOG_MSG_LEVEL" = "ERROR" ] || [ "$LOG_MSG_LEVEL" = "FATAL" ]; then
-            echo "----------------------------------------" >> "$LOG_FILE"
+            echo "---------------------------------------------------" >> "$LOG_FILE"
             echo "${LOG_MSG_PREFIX}${LOG_MSG}" >> "$LOG_FILE"
-            echo "----------------------------------------" >> "$LOG_FILE"
+            echo "---------------------------------------------------" >> "$LOG_FILE"
         elif [ "$LOG_MSG_LEVEL" = "-" ]; then
             echo "$LOG_MSG" >> "$LOG_FILE"
         else
@@ -138,9 +138,9 @@ logowl() {
     else
         if command -v ui_print >/dev/null 2>&1; then
             if [ "$LOG_MSG_LEVEL" = "ERROR" ] || [ "$LOG_MSG_LEVEL" = "FATAL" ]; then
-                ui_print "----------------------------------------"
+                ui_print "---------------------------------------------------"
                 ui_print "${LOG_MSG_PREFIX}${LOG_MSG}"
-                ui_print "----------------------------------------"
+                ui_print "---------------------------------------------------"
             elif [ "$LOG_MSG_LEVEL" = "-" ]; then
                 ui_print "$LOG_MSG"
             else
@@ -154,174 +154,12 @@ logowl() {
 
 print_line() {
 
-    length=${1:-45}
+    length=${1:-51}
     symbol=${2:--}
 
     line=$(printf "%-${length}s" | tr ' ' "$symbol")
     logowl "$line" "-"
 
-}
-
-get_config_var() {
-    key="$1"
-    config_file="$2"
-
-    [ -z "$key" ] || [ -z "$config_file" ] && return 1
-    [ ! -f "$config_file" ] && return 2
-
-    value=$(awk -v key="$key" '
-        BEGIN {
-            key_regex = "^" key "="
-            found = 0
-            in_quote = 0
-            value = ""
-        }
-        $0 ~ key_regex && !found {
-            sub(key_regex, "")
-            remaining = $0
-
-            sub(/^[[:space:]]*/, "", remaining)
-
-            if (remaining ~ /^"/) {
-                in_quote = 1
-                remaining = substr(remaining, 2)
-
-                if (match(remaining, /"([[:space:]]*)$/)) {
-                    value = substr(remaining, 1, RSTART - 1)
-                    in_quote = 0
-                } else {
-                    value = remaining
-                    while ((getline remaining) > 0) {
-                        if (match(remaining, /"([[:space:]]*)$/)) {
-                            line_part = substr(remaining, 1, RSTART - 1)
-                            value = value "\n" line_part
-                            in_quote = 0
-                            break
-                        } else {
-                            value = value "\n" remaining
-                        }
-                    }
-                    if (in_quote) exit 1
-                }
-                found = 1
-            } else {
-                gsub(/^[[:space:]]+|[[:space:]]+$/, "", remaining)
-                value = remaining
-                found = 1
-            }
-            if (found) exit 0
-        }
-        END {
-            if (!found) exit 1
-            gsub(/[[:space:]]+$/, "", value)
-            print value
-        }
-    ' "$config_file")
-
-    awk_exit_state=$?
-    case $awk_exit_state in
-        1)  return 5
-            ;;
-        0)  ;;
-        *)  return 6
-            ;;
-    esac
-
-    value=$(printf "%s" "$value" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-
-    if check_value_safety "$key" "$value"; then
-        echo "$value"
-        return 0
-    else
-        return $?
-    fi
-}
-
-check_value_safety() {
-    key="$1"
-    value="$2"
-
-    check_param_safety "$key"
-    result_check_key=$?
-
-    if [ "$result_check_key" = 0 ]; then
-        if [ "$value" = true ] || [ "$value" = false ]; then
-            logowl "Verified $key=$value (boolean)"
-            return 0
-        fi
-    else
-        logowl "Failed to verify key ($result_check_key)"
-        return 1
-    fi
-
-    check_param_safety "$value"
-    result_check_value=$?
-
-    if [ "$result_check_key" = 0 ] && [ "$result_check_value" = 0 ]; then
-        if echo "$value" | grep -q '^'; then
-            value=$(echo "$value" | sed ':loop;N;N;y/\n/ /;P;D')
-        fi
-        logowl "Verified $key=$value"
-        return 0
-    else
-        logowl "Failed to verify value ($result_check_value)"
-        return 1
-    fi
-
-}
-
-check_param_safety() {
-    param=$1
-
-    [ -z "$param" ] && return 1
-
-    param=$(printf "%s" "$param" | sed 's/'\''/'\\\\'\'''\''/g' | sed 's/[$;&|<>`"()]/\\&/g')
-    first_char=$(printf '%s' "$param" | cut -c1)
-
-    [ "$first_char" = "#" ] && return 2
-    
-    param=$(echo "$param" | cut -d'#' -f1 | xargs)
-
-    regex='^[a-zA-Z0-9/_\. @-]*$'
-    dangerous_chars='[`$();|<>]'
-
-    if echo "$param" | grep -Eq "$dangerous_chars"; then
-        return 3
-    fi
-
-    if ! echo "$param" | grep -Eq "$regex"; then
-        return 4
-    fi
-
-    return 0
-}
-
-verify_var() {
-    config_var_name="$1"
-    config_var_value="$2"
-    validation_pattern="$3"
-    default_value="${4:-}"
-
-    [ -z "$config_var_name" ] || [ -z "$config_var_value" ] || [ -z "$validation_pattern" ] && return 1    
-    
-    script_var_name=$(echo "$config_var_name" | tr '[:lower:]' '[:upper:]')
-
-    if echo "$config_var_value" | grep -qE "$validation_pattern"; then
-        export "$script_var_name"="$config_var_value"
-        if echo "$config_var_value" | grep -q '^'; then
-            config_var_value=$(echo "$config_var_value" | sed ':loop;N;N;y/\n/ /;P;D')
-        fi
-        logowl "Set $script_var_name=$config_var_value" "TIPS"
-        return 0
-    else
-        if [ -n "$default_value" ]; then
-            if eval "[ -z \"\${$script_var_name+x}\" ]"; then
-                logowl "Set $script_var_name=$default_value (default)" "TIPS"
-                export "$script_var_name"="$default_value"
-            fi
-        fi
-        return 2
-    fi
 }
 
 update_config_var() {
@@ -439,79 +277,5 @@ set_permission_recursive() {
     find $1 -type f -o -type l 2>/dev/null | while read file; do
         set_permission $file $2 $3 $5 $6
     done
-
-}
-
-check_duplicate_items() {
-
-    itemd=$1
-    filed=$2
-
-    if grep -q "^$itemd$" "$filed"; then
-        return 1
-    else
-        return 0
-    fi
-}
-
-clean_duplicate_items() {
-
-    filed=$1
-
-    [ -z "$filed" ] && return 1
-    [ ! -f "$filed" ] && return 2
-
-    awk '!seen[$0]++' "$filed" > "${filed}.tmp"
-    mv "${filed}.tmp" "$filed"
-    return 0
-
-}
-
-fetch_prop() {
-    prop_name=$1
-    prop_current_value=$(getprop "$prop_name")
-
-    if [ -n "$prop_current_value" ]; then
-        logowl "$prop_name=$prop_current_value"
-        return 0
-    elif [ -z "$prop_current_value" ]; then
-        logowl "$prop_name="
-        return 1
-    fi
-
-}
-
-check_before_resetprop() {
-    prop_name=$1
-    prop_expect_value=$2
-    prop_current_value=$(resetprop "$prop_name")
-
-    [ -z "$prop_current_value" ] && return 1
-    [ "$prop_current_value" = "$prop_expect_value" ] && return 0
-    resetprop "$prop_name" "$prop_expect_value" && return 0
-
-}
-
-check_before_removeprop() {
-    prop_name=$1
-    prop_current_value=$(resetprop "$prop_name")
-
-    [ -z "$prop_current_value" ] && return 1
-    resetprop -d $prop_name && return 0
-
-}
-
-find_keyword_before_resetprop() {
-    prop_name="$1"
-    prop_contains_keyword="$2"
-    prop_expect_value="$3"
-    prop_current_value=$(resetprop "$prop_name")
-
-    [ -z "$prop_current_value" ] || [ -z "$prop_contains_keyword" ] || [ -z "$prop_expect_value" ] && return 1
-    
-    if echo "$prop_current_value" | grep -q "$prop_contains_keyword"; then
-        resetprop "$prop_name" "$prop_expect_value"
-        return 0
-    fi
 
 }
