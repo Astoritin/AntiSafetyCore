@@ -1,7 +1,7 @@
 id=antisafetycore
 name=Anti SafetyCore
-version=v1.1.1
-versionCode=28
+version=v1.1.2
+versionCode=50
 author=Astoritin Ambrosius
-description=Fight against SafetyCore and KeyVerifier installed by Google quietly.
+description=Fight against SafetyCore and KeyVerifier.
 updateJson=https://raw.githubusercontent.com/Astoritin/AntiSafetyCore/main/webpage/update.json
