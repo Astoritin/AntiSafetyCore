@@ -74,6 +74,7 @@ logowl() {
     LOG_MSG="$1"
     LOG_MSG_LEVEL="$2"
     LOG_MSG_PREFIX=""
+    SEPARATE_LINE="---------------------------------------------"
 
     [ -z "$LOG_MSG" ] && return 1
 
@@ -90,9 +91,9 @@ logowl() {
 
     if [ -n "$LOG_FILE" ]; then
         if [ "$LOG_MSG_LEVEL" = "ERROR" ] || [ "$LOG_MSG_LEVEL" = "FATAL" ]; then
-            echo "---------------------------------------------------" >> "$LOG_FILE"
+            echo "$SEPARATE_LINE" >> "$LOG_FILE"
             echo "${LOG_MSG_PREFIX}${LOG_MSG}" >> "$LOG_FILE"
-            echo "---------------------------------------------------" >> "$LOG_FILE"
+            echo "$SEPARATE_LINE" >> "$LOG_FILE"
         elif [ "$LOG_MSG_LEVEL" = "-" ]; then
             echo "$LOG_MSG" >> "$LOG_FILE"
         else
@@ -101,9 +102,9 @@ logowl() {
     else
         if command -v ui_print >/dev/null 2>&1; then
             if [ "$LOG_MSG_LEVEL" = "ERROR" ] || [ "$LOG_MSG_LEVEL" = "FATAL" ]; then
-                ui_print "---------------------------------------------------"
+                ui_print "$SEPARATE_LINE"
                 ui_print "${LOG_MSG_PREFIX}${LOG_MSG}"
-                ui_print "---------------------------------------------------"
+                ui_print "$SEPARATE_LINE"
             elif [ "$LOG_MSG_LEVEL" = "-" ]; then
                 ui_print "$LOG_MSG"
             else
@@ -113,6 +114,16 @@ logowl() {
             echo "${LOG_MSG_PREFIX}${LOG_MSG}"
         fi
     fi
+}
+
+print_line() {
+
+    length=${1:-51}
+    symbol=${2:--}
+
+    line=$(printf "%-${length}s" | tr ' ' "$symbol")
+    logowl "$line" "-"
+
 }
 
 update_config_var() {
@@ -140,14 +151,6 @@ show_system_info() {
 
 }
 
-abort_verify() {
-
-    [ -n "$VERIFY_DIR" ] && [ -d "$VERIFY_DIR" ] && [ "$VERIFY_DIR" != "/" ] && rm -rf "$VERIFY_DIR"
-    logowl "$1" "E"
-    abort "This zip may be corrupted or has been maliciously modified!"
-
-}
-
 extract() {
 
     zip=$1
@@ -161,17 +164,17 @@ extract() {
     hash_path=""
     if [ $junk_paths = true ]; then
         file_path="$dir/$(basename "$file")"
-        hash_path="$VERIFY_DIR/$(basename "$file").sha256"
+        hash_path="$TMPDIR/$(basename "$file").sha256"
     else
         file_path="$dir/$file"
-        hash_path="$VERIFY_DIR/$file.sha256"
+        hash_path="$TMPDIR/$file.sha256"
     fi
 
     unzip $opts "$zip" "$file" -d "$dir" >&2
-    [ -f "$file_path" ] || abort_verify "$file does NOT exist"
+    [ -f "$file_path" ] || abort "$file does NOT exist"
 
-    unzip $opts "$zip" "$file.sha256" -d "$VERIFY_DIR" >&2
-    [ -f "$hash_path" ] || abort_verify "$file.sha256 does NOT exist"
+    unzip $opts "$zip" "$file.sha256" -d "$TMPDIR" >&2
+    [ -f "$hash_path" ] || abort "$file.sha256 does NOT exist"
 
     expected_hash="$(cat "$hash_path")"
     calculated_hash="$(sha256sum "$file_path" | cut -d ' ' -f1)"
@@ -179,7 +182,7 @@ extract() {
     if [ "$expected_hash" == "$calculated_hash" ]; then
         logowl "Verified $file" >&1
     else
-        abort_verify "Failed to verify file $file"
+        abort "Failed to verify $file"
     fi
 }
 
