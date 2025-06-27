@@ -1,7 +1,7 @@
 id=antisafetycore
 name=Anti SafetyCore
-version=v1.1.2
-versionCode=50
+version=v1.1.4
+versionCode=80
 author=Astoritin Ambrosius
 description=Fight against SafetyCore and KeyVerifier.
 updateJson=https://raw.githubusercontent.com/Astoritin/AntiSafetyCore/main/webpage/update.json

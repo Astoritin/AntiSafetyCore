@@ -9,9 +9,11 @@ TMP_DIR="/data/local/tmp"
 MODULE_PROP="$MODDIR/module.prop"
 MOD_INTRO="Fight against SafetyCore and KeyVerifier."
 
+PM="$(command -v pm)"
+
 fetch_package_path_from_pm() {
     package_name=$1
-    output_pm=$(pm path "$package_name")
+    output_pm=$(${PM} path "$package_name")
 
     [ -z "$output_pm" ] && return 1
 
@@ -24,7 +26,7 @@ uninstall_package() {
 
     package_name="$1"
 
-    pm uninstall "$package_name"
+    "$PM" uninstall "$package_name"
     result_uninstall_package=$?
 
     return "$result_uninstall_package"
@@ -40,7 +42,7 @@ install_package() {
     package_basename=$(basename "$package_path")
     package_tmp="$TMP_DIR/$package_basename"
 
-    pm install -i "com.android.vending" "$package_tmp"
+    "$PM" install -i "com.android.vending" "$package_tmp"
     result_install_package=$?
 
     rm -f "$package_tmp"
