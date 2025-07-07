@@ -161,15 +161,6 @@ print_line() {
 
 }
 
-grep_config_var() {
-    regex="s/^$1=//p"
-    config_file="$2"
-
-    [ -z "$config_file" ] && config_file="/system/build.prop"
-    cat "$config_file" 2>/dev/null | dos2unix | sed -n "$regex" | head -n 1
-
-}
-
 update_config_var() {
     key_name="$1"
     key_value="$2"
