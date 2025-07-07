@@ -30,3 +30,5 @@ This effectively blocks Google from repeatedly installing stuff like SafetyCore 
 
 ## Credits
 - [Magisk](https://github.com/topjohnwu/Magisk) - the foundation which makes everything possible
+- [Zygisk Next](https://github.com/Dr-TSNG/ZygiskNext) - the implementation of function extract and root solution check
+- [LSPosed](https://github.com/LSPosed/LSPosed) - the implementation of function extract and root solution check
