@@ -70,11 +70,36 @@ install_env_check() {
 
 }
 
+logowl_init() {
+    LOG_DIR="$1"
+
+    [ -z "$LOG_DIR" ] && return 1
+    [ ! -d "$LOG_DIR" ] && mkdir -p "$LOG_DIR" && logowl "Create $LOG_DIR"
+
+}
+
+logowl_clean() {
+    log_dir="$1"
+    files_max="$2"
+    
+    [ -z "$log_dir" ] || [ ! -d "$log_dir" ] && return 1
+    [ -z "$files_max" ] && files_max=30
+
+    files_count=$(ls -1 "$log_dir" | wc -l)
+    if [ "$files_count" -gt "$files_max" ]; then
+        ls -1t "$log_dir" | tail -n +$((files_max + 1)) | while read -r file; do
+            rm -f "$log_dir/$file"
+        done
+    fi
+    return 0
+}
+
 logowl() {
     LOG_MSG="$1"
     LOG_MSG_LEVEL="$2"
     LOG_MSG_PREFIX=""
     SEPARATE_LINE="---------------------------------------------"
+    TIMESTAMP_FORMAT="%02d:%02d:%02d:%03d | "
 
     [ -z "$LOG_MSG" ] && return 1
 
@@ -86,18 +111,28 @@ logowl() {
         "*" ) LOG_MSG_PREFIX="* " ;; 
         " ") LOG_MSG_PREFIX="  " ;;
         "-") LOG_MSG_PREFIX="" ;;
-        *) LOG_MSG_PREFIX="- " ;;
+        *) if [ -n "$LOG_FILE" ]; then
+            LOG_MSG_PREFIX=""
+            else
+            LOG_MSG_PREFIX="- "
+            fi
+            ;;
     esac
 
     if [ -n "$LOG_FILE" ]; then
+        CURRENT_HOUR=$(date +%H)
+        CURRENT_MIN=$(date +%M)
+        CURRENT_SEC=$(date +%S)
+        CURRENT_MS=$(date +%3N)
+        TIME_STAMP=$(printf "$TIMESTAMP_FORMAT" "$CURRENT_HOUR" "$CURRENT_MIN" "$CURRENT_SEC" "$CURRENT_MS")
         if [ "$LOG_MSG_LEVEL" = "ERROR" ] || [ "$LOG_MSG_LEVEL" = "FATAL" ]; then
             echo "$SEPARATE_LINE" >> "$LOG_FILE"
-            echo "${LOG_MSG_PREFIX}${LOG_MSG}" >> "$LOG_FILE"
+            echo "${TIME_STAMP}${LOG_MSG_PREFIX}${LOG_MSG}" >> "$LOG_FILE"
             echo "$SEPARATE_LINE" >> "$LOG_FILE"
         elif [ "$LOG_MSG_LEVEL" = "-" ]; then
-            echo "$LOG_MSG" >> "$LOG_FILE"
+            echo "${LOG_MSG}" >> "$LOG_FILE"
         else
-            echo "${LOG_MSG_PREFIX}${LOG_MSG}" >> "$LOG_FILE"
+            echo "${TIME_STAMP}${LOG_MSG_PREFIX}${LOG_MSG}" >> "$LOG_FILE"
         fi
     else
         if command -v ui_print >/dev/null 2>&1; then
@@ -126,6 +161,15 @@ print_line() {
 
 }
 
+grep_config_var() {
+    regex="s/^$1=//p"
+    config_file="$2"
+
+    [ -z "$config_file" ] && config_file="/system/build.prop"
+    cat "$config_file" 2>/dev/null | dos2unix | sed -n "$regex" | head -n 1
+
+}
+
 update_config_var() {
     key_name="$1"
     key_value="$2"
@@ -148,6 +192,38 @@ show_system_info() {
     logowl "Device: $(getprop ro.product.brand) $(getprop ro.product.model) ($(getprop ro.product.device))"
     logowl "OS: Android $(getprop ro.build.version.release) (API $(getprop ro.build.version.sdk)), $(getprop ro.product.cpu.abi | cut -d '-' -f1)"
     logowl "Kernel: $(uname -r)"
+
+}
+
+module_intro() {
+
+    MODULE_PROP="$MODDIR/module.prop"
+    MOD_NAME="$(grep_config_var "name" "$MODULE_PROP")"
+    MOD_AUTHOR="$(grep_config_var "author" "$MODULE_PROP")"
+    MOD_VER="$(grep_config_var "version" "$MODULE_PROP") ($(grep_config_var "versionCode" "$MODULE_PROP"))"
+
+    install_env_check
+    print_line
+    logowl "$MOD_NAME"
+    logowl "By $MOD_AUTHOR"
+    logowl "Version: $MOD_VER"
+    logowl "Root: $ROOT_SOL_DETAIL"
+    print_line
+
+}
+
+file_compare() {
+    file_a="$1"
+    file_b="$2"
+    
+    [ -z "$file_a" ] || [ -z "$file_b" ] && return 2
+    [ ! -f "$file_a" ] || [ ! -f "$file_b" ] && return 3
+    
+    hash_file_a=$(sha256sum "$file_a" | awk '{print $1}')
+    hash_file_b=$(sha256sum "$file_b" | awk '{print $1}')
+    
+    [ "$hash_file_a" = "$hash_file_b" ] && return 0
+    [ "$hash_file_a" != "$hash_file_b" ] && return 1
 
 }
 
@@ -203,5 +279,53 @@ set_permission_recursive() {
     find $1 -type f -o -type l 2>/dev/null | while read file; do
         set_permission $file $2 $3 $5 $6
     done
+
+}
+
+# Anit SafetyCore specific functions
+
+PM="$(command -v pm)"
+
+fetch_package_path_from_pm() {
+    package_name=$1
+    output_pm=$(${PM} path "$package_name")
+
+    if [ -z "$output_pm" ]; then
+        logowl "$package_name does NOT exist!"
+        return 1
+    fi
+
+    package_path=$(echo "$output_pm" | cut -d':' -f2- | sed 's/^://' )
+
+    echo "$package_path"   
+ 
+}
+
+uninstall_package() {
+
+    package_name="$1"
+
+    "$PM" uninstall "$package_name"
+    result_uninstall_package=$?
+    logowl "$PM uninstall $package_name ($result_uninstall_package)"
+    return "$result_uninstall_package"
+
+}
+
+install_package() {
+    package_path="$1"
+    TMPDIR="/data/local/tmp"
+
+    cp "$package_path" "$TMPDIR"
+
+    package_basename=$(basename "$package_path")
+    package_tmp="$TMPDIR/$package_basename"
+
+    "$PM" install -i "com.android.vending" "$package_tmp"
+    result_install_package=$?
+    logowl "$PM install -i com.android.vending $package_tmp ($result_install_package)"
+
+    rm -f "$package_tmp"
+    return "$result_install_package"    
 
 }

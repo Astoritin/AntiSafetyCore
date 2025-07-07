@@ -2,6 +2,9 @@
 SKIPUNZIP=1
 
 CONFIG_DIR="/data/adb/antisafetycore"
+
+LOG_DIR="$CONFIG_DIR/logs"
+
 PH_DIR="$CONFIG_DIR/placeholder"
 
 MOD_NAME="$(grep_prop name "$TMPDIR/module.prop")"
@@ -18,16 +21,19 @@ fi
 
 logowl "Setting up $MOD_NAME"
 logowl "Version: $MOD_VER"
+logowl_init "$LOG_DIR"
 show_system_info
 install_env_check
 logowl "Install from $ROOT_SOL app"
 logowl "Root: $ROOT_SOL_DETAIL"
-rm -rf "$CONFIG_DIR"
+rm -rf "$PH_DIR"
+logowl_init "$LOG_DIR"
 mkdir -p "$PH_DIR"
 extract "customize.sh" "$TMPDIR"
-extract "aa-util.sh" "$TMPDIR"
+extract "aa-util.sh"
 extract "module.prop"
 extract "service.sh"
+extract "action.sh"
 extract "uninstall.sh"
 extract "placeholder/SafetyCorePlaceHolder.apk" "$CONFIG_DIR"
 extract "placeholder/KeyVerifierPlaceHolder.apk" "$CONFIG_DIR"
@@ -58,6 +64,5 @@ print_line "42" "*"
 logowl "Set permissions"
 set_permission_recursive "$MODPATH" 0 0 0755 0644
 logowl "Welcome to use $MOD_NAME!"
-logowl "Reboot to take effect"
-DESCRIPTION="[⏳Reboot to take effect.] $MOD_INTRO"
+DESCRIPTION="[🚀Reboot to take effect.] $MOD_INTRO"
 update_config_var "description" "$DESCRIPTION" "$MODPATH/module.prop"
