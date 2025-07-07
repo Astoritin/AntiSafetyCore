@@ -29,5 +29,5 @@
 
 ## 致谢
 - [Magisk](https://github.com/topjohnwu/Magisk) - 让一切皆有可能的基石
-- [Zygisk Next](https://github.com/Dr-TSNG/ZygiskNext) - extract 函数实现
-- [LSPosed](https://github.com/LSPosed/LSPosed) - extract 函数实现
+- [Zygisk Next](https://github.com/Dr-TSNG/ZygiskNext) - extract和root方案检查函数实现
+- [LSPosed](https://github.com/LSPosed/LSPosed) - extract和root方案检查函数实现
