@@ -22,7 +22,7 @@ This effectively blocks Google from repeatedly installing stuff like SafetyCore 
 1. If you have installed and enabled modules like [Core Patch](https://github.com/LSPosed/CorePatch) or similar options, Google may successfully perform a background silent update of the placeholder app.
 > When these options are enabled, your ROM will ignore the different signatures and allow Google's actions.
 2. To reduce resource consumption and system intervention, this module only uninstalls the two apps and replaces them with placeholder apps at booting.
-> This means that if Google successfully replaces them with the original apps, you just need to restart your device to restore the placeholder apps.
+> This means that if Google successfully replaces them with the original apps, you just need to click on the action/open button or restart your device to restore the placeholder apps.
 
 ## Help and Support
 - If you encounter any problems, please [click here](https://github.com/Astoritin/AntiSafetyCore/issues) to submit feedback.
