@@ -17,10 +17,7 @@ fetch_package_path_from_pm() {
     package_name=$1
     output_pm=$(${PM} path "$package_name")
 
-    if [ -z "$output_pm" ]; then
-        logowl "$package_name does NOT exist!"
-        return 1
-    fi
+    [ -z "$output_pm" ] && return 1
 
     package_path=$(echo "$output_pm" | cut -d':' -f2- | sed 's/^://' )
 
@@ -128,5 +125,3 @@ fi
 
 DESCRIPTION="[$desc_state] $MOD_INTRO"
 update_config_var "description" "$DESCRIPTION" "$MODULE_PROP"
-logowl "$SEPARATE_LINE"
-logowl "Case closed!"
