@@ -4,9 +4,6 @@ MODDIR=${0%/*}
 CONFIG_DIR="/data/adb/antisafetycore"
 PH_DIR="$CONFIG_DIR/placeholder"
 
-LOG_DIR="$CONFIG_DIR/logs"
-LOG_FILE="$LOG_DIR/asc_core_$(date +"%Y%m%dT%H%M%S").log"
-
 MODULE_PROP="$MODDIR/module.prop"
 MOD_INTRO="Fight against SafetyCore and KeyVerifier."
 
@@ -14,13 +11,49 @@ replaced_sc="false"
 replaced_kv="false"
 desc_state=""
 
-. "$MODDIR/aa-util.sh"
+PM="$(command -v pm)"
 
-logowl_init "$LOG_DIR"
-logowl_clean "30"
-module_intro >> "$LOG_FILE"
-show_system_info >> "$LOG_FILE"
-print_line
+fetch_package_path_from_pm() {
+    package_name=$1
+    output_pm=$(${PM} path "$package_name")
+
+    if [ -z "$output_pm" ]; then
+        logowl "$package_name does NOT exist!"
+        return 1
+    fi
+
+    package_path=$(echo "$output_pm" | cut -d':' -f2- | sed 's/^://' )
+
+    echo "$package_path"
+ 
+}
+
+uninstall_package() {
+
+    package_name="$1"
+
+    "$PM" uninstall "$package_name"
+    result_uninstall_package=$?
+    return "$result_uninstall_package"
+
+}
+
+install_package() {
+    package_path="$1"
+    TMPDIR="/data/local/tmp"
+
+    cp "$package_path" "$TMPDIR"
+
+    package_basename=$(basename "$package_path")
+    package_tmp="$TMPDIR/$package_basename"
+
+    "$PM" install -i "com.android.vending" "$package_tmp"
+    result_install_package=$?
+
+    rm -f "$package_tmp"
+    return "$result_install_package"    
+
+}
 
 check_installed_apk() {
     path_apk_toinstall=$1
@@ -28,13 +61,9 @@ check_installed_apk() {
     
     path_apk_installed=$(fetch_package_path_from_pm "$package_name")
 
-    if [ ! -f "$path_apk_toinstall" ]; then
-        logowl "APK to install does NOT exist!" "E"
-        return 1
-    fi
+    [ ! -f "$path_apk_toinstall" ] && return 1
 
     if [ "$FORCE_REPLACE" = true ]; then
-        logowl "Find force mode enabled"
         check_and_install_apk "$path_apk_toinstall" "$path_apk_installed"
         return $?
     fi
@@ -43,12 +72,8 @@ check_installed_apk() {
     result_file_compare=$?
 
     case "$result_file_compare" in
-    0)  logowl "Same"
-        return 0
-        ;;
-    1|3)  logowl "Different"
-        check_and_install_apk "$path_apk_toinstall" "$path_apk_installed"
-        ;;
+    0) return 0;;
+    1|3) check_and_install_apk "$path_apk_toinstall" "$path_apk_installed";;
     esac
 }
 
@@ -56,21 +81,31 @@ check_and_install_apk() {
     $path_apk_toinstall=$1
     $path_apk_installed=$2
 
-    if [ -f "$path_apk_installed" ]; then
-        logowl "Find installed apk"
-        uninstall_package "$path_apk_installed"
-    fi
+    [ -f "$path_apk_installed" ] && uninstall_package "$path_apk_installed"
     install_package "$path_apk_toinstall" && return 0
     return 1
 }
 
-boot_count=0
+update_config_var() {
+    key_name="$1"
+    key_value="$2"
+    file_path="$3"
+
+    if [ -z "$key_name" ] || [ -z "$key_value" ] || [ -z "$file_path" ]; then
+        return 1
+    elif [ ! -f "$file_path" ]; then
+        return 2
+    fi
+
+    sed -i "/^${key_name}=/c\\${key_name}=${key_value}" "$file_path"
+    result_update_value=$?
+    return "$result_update_value"
+
+}
+
 while [ "$(getprop sys.boot_completed)" != "1" ]; do
-    boot_count=$((boot_count + 1))
     sleep 1
 done
-
-logowl "Boot complete after ${boot_count}s!"
 
 SafetyCore="com.google.android.safetycore"
 KeyVerifier="com.google.android.contactkeys"

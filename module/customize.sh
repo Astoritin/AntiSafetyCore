@@ -3,8 +3,6 @@ SKIPUNZIP=1
 
 CONFIG_DIR="/data/adb/antisafetycore"
 
-LOG_DIR="$CONFIG_DIR/logs"
-
 PH_DIR="$CONFIG_DIR/placeholder"
 
 MOD_NAME="$(grep_prop name "$TMPDIR/module.prop")"
@@ -13,7 +11,7 @@ MOD_INTRO="Fight against SafetyCore and KeyVerifier."
 
 unzip -o "$ZIPFILE" "aa-util.sh" -d "$TMPDIR" >&2
 if [ ! -f "$TMPDIR/aa-util.sh" ]; then
-    echo "! Failed to extract aa-util.sh!"
+    ui_print "! Failed to extract aa-util.sh!"
     abort "! This zip may be corrupted!"
 fi
 
@@ -21,16 +19,14 @@ fi
 
 logowl "Setting up $MOD_NAME"
 logowl "Version: $MOD_VER"
-logowl_init "$LOG_DIR"
 show_system_info
 install_env_check
 logowl "Install from $ROOT_SOL app"
 logowl "Root: $ROOT_SOL_DETAIL"
-rm -rf "$PH_DIR"
-logowl_init "$LOG_DIR"
+rm -rf "$CONFIG_DIR"
 mkdir -p "$PH_DIR"
 extract "customize.sh" "$TMPDIR"
-extract "aa-util.sh"
+extract "aa-util.sh" "$TMPDIR"
 extract "module.prop"
 extract "service.sh"
 extract "action.sh"
