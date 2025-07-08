@@ -1,10 +1,10 @@
 #!/system/bin/sh
 MODDIR=${0%/*}
 
+FORCE_REPLACE=true
+
 CONFIG_DIR="/data/adb/antisafetycore"
-
 PH_DIR="$CONFIG_DIR/placeholder"
-
 decide_timeout=3
 
 MOD_INTRO="Fight against SafetyCore and KeyVerifier."
@@ -41,22 +41,7 @@ if echo "$keypress_record" | grep -q "KEY_VOLUMEDOWN"; then
 fi
 echo "- Replace with placeholder apks"
 
-. "$MODDIR/aa-util.sh"
-
-PN_SC="com.google.android.safetycore"
-PN_KV="com.google.android.contactkeys"
-
-PATH_PH_SC="$PH_DIR/SafetyCorePlaceHolder.apk"
-PATH_PH_KV="$PH_DIR/KeyVerifierPlaceHolder.apk"
-
-PATH_C_SC=$(fetch_package_path_from_pm "$PN_SC")
-PATH_C_KV=$(fetch_package_path_from_pm "$PN_KV")
-
-[ -n "$PATH_C_SC" ] && uninstall_package "$PN_SC"
-[ -n "$PATH_C_KV" ] && uninstall_package "$PN_KV"
-
-[ -f "$PATH_PH_SC" ] && install_package "$PATH_PH_SC"
-[ -f "$PATH_PH_KV" ] && install_package "$PATH_PH_KV"
+. "$MODDIR/service.sh"
 
 echo "$SEPARATE_LINE"
 echo "- Case closed!"

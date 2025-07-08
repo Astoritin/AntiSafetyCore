@@ -2,14 +2,17 @@
 MODDIR=${0%/*}
 
 CONFIG_DIR="/data/adb/antisafetycore"
+PH_DIR="$CONFIG_DIR/placeholder"
 
 LOG_DIR="$CONFIG_DIR/logs"
 LOG_FILE="$LOG_DIR/asc_core_$(date +"%Y%m%dT%H%M%S").log"
 
-PH_DIR="$CONFIG_DIR/placeholder"
-
 MODULE_PROP="$MODDIR/module.prop"
 MOD_INTRO="Fight against SafetyCore and KeyVerifier."
+
+replaced_sc="false"
+replaced_kv="false"
+desc_state=""
 
 . "$MODDIR/aa-util.sh"
 
@@ -19,10 +22,47 @@ module_intro >> "$LOG_FILE"
 show_system_info >> "$LOG_FILE"
 print_line
 
-if [ ! -d "$PH_DIR" ]; then
-    logowl "Placeholder dir does NOT exist!" "F"
+check_installed_apk() {
+    path_apk_toinstall=$1
+    package_name=$2
+    
+    path_apk_installed=$(fetch_package_path_from_pm "$package_name")
+
+    if [ ! -f "$path_apk_toinstall" ]; then
+        logowl "APK to install does NOT exist!" "E"
+        return 1
+    fi
+
+    if [ "$FORCE_REPLACE" = true ]; then
+        logowl "Find force mode enabled"
+        check_and_install_apk "$path_apk_toinstall" "$path_apk_installed"
+        return $?
+    fi
+
+    file_compare "$path_apk_toinstall" "$path_apk_installed"
+    result_file_compare=$?
+
+    case "$result_file_compare" in
+    0)  logowl "Same"
+        return 0
+        ;;
+    1|3)  logowl "Different"
+        check_and_install_apk "$path_apk_toinstall" "$path_apk_installed"
+        ;;
+    esac
+}
+
+check_and_install_apk() {
+    $path_apk_toinstall=$1
+    $path_apk_installed=$2
+
+    if [ -f "$path_apk_installed" ]; then
+        logowl "Find installed apk"
+        uninstall_package "$path_apk_installed"
+    fi
+    install_package "$path_apk_toinstall" && return 0
     return 1
-fi
+}
 
 boot_count=0
 while [ "$(getprop sys.boot_completed)" != "1" ]; do
@@ -32,36 +72,14 @@ done
 
 logowl "Boot complete after ${boot_count}s!"
 
-PN_SC="com.google.android.safetycore"
-PN_KV="com.google.android.contactkeys"
+SafetyCore="com.google.android.safetycore"
+KeyVerifier="com.google.android.contactkeys"
 
-PATH_PH_SC="$PH_DIR/SafetyCorePlaceHolder.apk"
-PATH_PH_KV="$PH_DIR/KeyVerifierPlaceHolder.apk"
+PH_SafetyCore="$PH_DIR/SafetyCorePlaceHolder.apk"
+PH_KeyVerifier="$PH_DIR/KeyVerifierPlaceHolder.apk"
 
-PATH_C_SC=$(fetch_package_path_from_pm "$PN_SC")
-PATH_C_KV=$(fetch_package_path_from_pm "$PN_KV")
-
-replaced_sc="false"
-replaced_kv="false"
-desc_state=""
-
-if file_compare "$PATH_C_SC" "$PATH_PH_SC"; then
-    replaced_sc="true"
-else
-    replaced_sc="false"
-    logowl "Find installed SafetyCore different from placeholder APP"
-    uninstall_package "$PN_SC"
-    [ -f "$PATH_PH_SC" ] && install_package "$PATH_PH_SC" && replaced_sc="true"
-fi
-
-if file_compare "$PATH_C_KV" "$PATH_PH_KV"; then
-    replaced_kv="true"
-else
-    replaced_kv="false"
-    logowl "Find installed KeyVerifier different from placeholder APP"
-    uninstall_package "$PN_KV"
-    [ -f "$PATH_PH_KV" ] && install_package "$PATH_PH_KV" && replaced_kv="true"
-fi
+check_installed_apk "$PH_SafetyCore" && replaced_sc=true
+check_installed_apk "$PH_KeyVerifier" && replaced_kv=true
 
 if [ "$replaced_sc" = "true" ] && [ "$replaced_kv" = "true" ]; then
     desc_state="✅Cleared. Slain: ✅SafetyCore, ✅KeyVerifier"
