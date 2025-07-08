@@ -40,7 +40,9 @@ if echo "$keypress_record" | grep -q "KEY_VOLUMEDOWN"; then
     exit 0
 fi
 
-. "$MODDIR/service.sh" && echo "- Replace with placeholder apks"
+echo "- Replace with placeholder apks"
+
+. "$MODDIR/service.sh"
 
 echo "$SEPARATE_LINE"
 echo "- Case closed!"
