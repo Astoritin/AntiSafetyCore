@@ -10,7 +10,7 @@ is_magisk() {
     MAGISK_V_VER_NAME="$(magisk -v)"
     MAGISK_V_VER_CODE="$(magisk -V)"
     case "$MAGISK_V_VER_NAME" in
-        *"-alpha"*) MAGISK_BRANCH_NAME="Magisk Alpha" ;;
+        *"-alpha"*) MAGISK_BRANCH_NAME="Alpha" ;;
         *"-lite"*)  MAGISK_BRANCH_NAME="Magisk Lite" ;;
         *"-kitsune"*) MAGISK_BRANCH_NAME="Kitsune Mask" ;;
         *"-delta"*) MAGISK_BRANCH_NAME="Magisk Delta" ;;
@@ -120,11 +120,7 @@ logowl() {
     esac
 
     if [ -n "$LOG_FILE" ]; then
-        CURRENT_HOUR=$(date +%H)
-        CURRENT_MIN=$(date +%M)
-        CURRENT_SEC=$(date +%S)
-        CURRENT_MS=$(date +%3N)
-        TIME_STAMP=$(printf "$TIMESTAMP_FORMAT" "$CURRENT_HOUR" "$CURRENT_MIN" "$CURRENT_SEC" "$CURRENT_MS")
+        TIME_STAMP="$(date +"%Y-%m-%d %H:%M:%S.%3N") | "
         if [ "$LOG_MSG_LEVEL" = "ERROR" ] || [ "$LOG_MSG_LEVEL" = "FATAL" ]; then
             echo "$SEPARATE_LINE" >> "$LOG_FILE"
             echo "${TIME_STAMP}${LOG_MSG_PREFIX}${LOG_MSG}" >> "$LOG_FILE"
@@ -153,7 +149,7 @@ logowl() {
 
 print_line() {
 
-    length=${1:-51}
+    length=${1:-74}
     symbol=${2:--}
 
     line=$(printf "%-${length}s" | tr ' ' "$symbol")
@@ -272,3 +268,7 @@ set_permission_recursive() {
     done
 
 }
+
+
+
+
