@@ -70,30 +70,6 @@ install_env_check() {
 
 }
 
-logowl_init() {
-    LOG_DIR="$1"
-
-    [ -z "$LOG_DIR" ] && return 1
-    [ ! -d "$LOG_DIR" ] && mkdir -p "$LOG_DIR" && logowl "Create $LOG_DIR"
-
-}
-
-logowl_clean() {
-    log_dir="$1"
-    files_max="$2"
-    
-    [ -z "$log_dir" ] || [ ! -d "$log_dir" ] && return 1
-    [ -z "$files_max" ] && files_max=30
-
-    files_count=$(ls -1 "$log_dir" | wc -l)
-    if [ "$files_count" -gt "$files_max" ]; then
-        ls -1t "$log_dir" | tail -n +$((files_max + 1)) | while read -r file; do
-            rm -f "$log_dir/$file"
-        done
-    fi
-    return 0
-}
-
 logowl() {
     LOG_MSG="$1"
     LOG_MSG_LEVEL="$2"
@@ -196,22 +172,6 @@ module_intro() {
     logowl "Version: $MOD_VER"
     logowl "Root: $ROOT_SOL_DETAIL"
     print_line
-
-}
-
-file_compare() {
-    file_a="$1"
-    file_b="$2"
-    
-    [ -z "$file_a" ] || [ ! -f "$file_a" ] && return 2
-    [ -z "$file_b" ] || [ ! -f "$file_b" ] && return 3
-    
-    hash_file_a=$(sha256sum "$file_a" | awk '{print $1}')
-    hash_file_b=$(sha256sum "$file_b" | awk '{print $1}')
-    
-    [ "$hash_file_a" = "$hash_file_b" ] && return 0
-    [ "$hash_file_a" != "$hash_file_b" ] && return 1
-
 }
 
 extract() {
@@ -268,7 +228,3 @@ set_permission_recursive() {
     done
 
 }
-
-
-
-

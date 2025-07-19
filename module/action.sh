@@ -5,7 +5,7 @@ FORCE_REPLACE=true
 
 CONFIG_DIR="/data/adb/antisafetycore"
 PH_DIR="$CONFIG_DIR/placeholder"
-decide_timeout=3
+decide_timeout=2
 
 MOD_INTRO="Fight against SafetyCore and KeyVerifier."
 SEPARATE_LINE="---------------------------------------------"
@@ -19,7 +19,7 @@ echo "$SEPARATE_LINE"
 echo "- Replace SafetyCore and KeyVerifier"
 echo "- with placeholder app forcefully"
 echo "- (ignore different APKs check)"
-echo "- will start after ${decide_timeout}s"
+echo "- will start after 3 seconds"
 echo "$SEPARATE_LINE"
 echo "- Press volume down button to skip replacing"
 echo "$SEPARATE_LINE"
