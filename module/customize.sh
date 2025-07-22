@@ -9,15 +9,15 @@ MOD_NAME="$(grep_prop name "$TMPDIR/module.prop")"
 MOD_VER="$(grep_prop version "$TMPDIR/module.prop") ($(grep_prop versionCode "$TMPDIR/module.prop"))"
 MOD_INTRO="Fight against SafetyCore and KeyVerifier."
 
-unzip -o "$ZIPFILE" "aa-util.sh" -d "$TMPDIR" >&2
-if [ ! -f "$TMPDIR/aa-util.sh" ]; then
-    ui_print "! Failed to extract aa-util.sh!"
+unzip -o "$ZIPFILE" "verify.sh" -d "$TMPDIR" >&2
+if [ ! -f "$TMPDIR/verify.sh" ]; then
+    ui_print "! Failed to extract verify.sh!"
     abort "! This zip may be corrupted!"
 fi
 
-. "$TMPDIR/aa-util.sh"
+. "$TMPDIR/verify.sh"
 
-logowl "Setting up $MOD_NAME"
+logowl "Set up $MOD_NAME"
 logowl "Version: $MOD_VER"
 show_system_info
 install_env_check
@@ -26,7 +26,7 @@ logowl "Root: $ROOT_SOL_DETAIL"
 rm -rf "$CONFIG_DIR"
 mkdir -p "$PH_DIR"
 extract "customize.sh" "$TMPDIR"
-extract "aa-util.sh" "$TMPDIR"
+extract "verify.sh" "$TMPDIR"
 extract "module.prop"
 extract "service.sh"
 extract "action.sh"
@@ -60,5 +60,5 @@ print_line "42" "*"
 logowl "Set permissions"
 set_permission_recursive "$MODPATH" 0 0 0755 0644
 logowl "Welcome to use $MOD_NAME!"
-DESCRIPTION="[🚀Reboot to take effect.] $MOD_INTRO"
+DESCRIPTION="[🙂Reboot to take effect.] $MOD_INTRO"
 update_config_var "description" "$DESCRIPTION" "$MODPATH/module.prop"

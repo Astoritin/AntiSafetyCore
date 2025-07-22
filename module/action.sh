@@ -5,9 +5,10 @@ FORCE_REPLACE=true
 
 CONFIG_DIR="/data/adb/antisafetycore"
 PH_DIR="$CONFIG_DIR/placeholder"
-decide_timeout=2
 
-MOD_INTRO="Fight against SafetyCore and KeyVerifier."
+wait_timeout=2
+
+MOD_INTRO="Fight against SafetyCore and KeyVerifier"
 SEPARATE_LINE="---------------------------------------------"
 
 echo "$SEPARATE_LINE"
@@ -18,10 +19,9 @@ echo "- $MOD_INTRO"
 echo "$SEPARATE_LINE"
 echo "- Replace SafetyCore and KeyVerifier"
 echo "- with placeholder app forcefully"
-echo "- (ignore different APKs check)"
-echo "- will start after 3 seconds"
 echo "$SEPARATE_LINE"
-echo "- Press volume down button to skip replacing"
+echo "- Will start after 3 seconds"
+echo "- Press any key to skip replacing"
 echo "$SEPARATE_LINE"
 
 if [ ! -d "$PH_DIR" ]; then
@@ -29,17 +29,11 @@ if [ ! -d "$PH_DIR" ]; then
     return 1
 fi
 
-keypress_record=$(timeout "$decide_timeout" getevent -ql 2>/dev/null)
-result_check_keypress=$?
-if [ "$result_check_keypress" -eq 142 ]; then
-    echo "- You do NOT press any key in ${timeout_seconds}s"
+if read -r -t "$wait_timeout" _ < <(getevent -ql); then
+    echo "- You have pressed a key, skip replacing"
+else
+    echo "- You do NOT press any key after ${timeout_seconds}s"
 fi
-if echo "$keypress_record" | grep -q "KEY_VOLUMEDOWN"; then
-    echo "- You have pressed key volume down"
-    echo "- Skip replacing"
-    exit 0
-fi
-
 echo "- Replace with placeholder apks"
 
 . "$MODDIR/service.sh"
