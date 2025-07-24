@@ -11,8 +11,6 @@ replaced_sc="false"
 replaced_kv="false"
 desc_state=""
 
-PM="$(command -v pm)"
-
 file_compare() {
     file_a="$1"
     file_b="$2"
@@ -30,7 +28,7 @@ file_compare() {
 
 fetch_package_path_from_pm() {
     package_name=$1
-    output_pm=$(${PM} path "$package_name")
+    output_pm=$(pm path "$package_name")
 
     [ -z "$output_pm" ] && return 1
 
@@ -42,7 +40,7 @@ fetch_package_path_from_pm() {
 uninstall_package() {
     package_name="$1"
 
-    "$PM" uninstall "$package_name" || su -c "${PM} uninstall $package_name"
+    pm uninstall "$package_name" || su -c "pm uninstall $package_name"
     result_uninstall_package=$?
     return "$result_uninstall_package"
 }
@@ -56,44 +54,40 @@ install_package() {
     package_basename=$(basename "$package_path")
     package_tmp="$TMPDIR/$package_basename"
 
-    "$PM" install -i "com.android.vending" "$package_tmp" || su -c "${PM} install -i "com.android.vending" $package_tmp"
+    pm install -i "com.android.vending" "$package_tmp" || su -c "pm install -i "com.android.vending" $package_tmp"
     result_install_package=$?
 
     rm -f "$package_tmp"
     return "$result_install_package"
 }
 
-check_existed_app() {
-    path_apk_toinstall=$1
-    apk_package_name=$2
-
-    [ -z "$apk_package_name" ] && return 2
-
-    path_existed_apk=$(fetch_package_path_from_pm "$apk_package_name")
-
-    [ ! -f "$path_apk_toinstall" ] && return 1
-
-    if [ "$FORCE_REPLACE" = true ]; then
-        check_and_install_apk "$path_apk_toinstall" "$apk_package_name"
-        return $?
-    fi
-
-    file_compare "$path_apk_toinstall" "$path_existed_apk"
-    result_file_compare=$?
-
-    case "$result_file_compare" in
-    0) return 0;;
-    1|3) check_and_install_apk "$path_apk_toinstall" "$apk_package_name";;
-    esac
-}
-
 check_and_install_apk() {
-    path_apk_toinstall=$1
+    apk_to_install=$1
     apk_package_name=$2
 
     uninstall_package "$apk_package_name"
-    install_package "$path_apk_toinstall"
+    install_package "$apk_to_install"
     return $?
+}
+
+check_existed_app() {
+    apk_to_install=$1
+    apk_package_name=$2
+
+    [ ! -f "$apk_to_install" ] && return 1
+    [ -z "$apk_package_name" ] && return 2
+
+    if [ "$FORCE_REPLACE" = true ]; then
+        check_and_install_apk "$apk_to_install" "$apk_package_name"
+        return $?
+    fi
+
+    existed_apk_path=$(fetch_package_path_from_pm "$apk_package_name")
+    file_compare "$apk_to_install" "$existed_apk_path"
+    case "$?" in
+    0) return 0;;
+    1|3) check_and_install_apk "$apk_to_install" "$apk_package_name";;
+    esac
 }
 
 update_config_var() {

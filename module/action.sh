@@ -20,8 +20,10 @@ echo "$SEPARATE_LINE"
 echo "- Replace SafetyCore and KeyVerifier"
 echo "- with placeholder app forcefully"
 echo "$SEPARATE_LINE"
-echo "- Will start after 3 seconds"
-echo "- Press any key to skip replacing"
+echo "- Will start after $((wait_timeout - 1)) seconds"
+echo "- Press any key or"
+echo "- touch screen at once"
+echo "- to skip replacing"
 echo "$SEPARATE_LINE"
 
 if [ ! -d "$PH_DIR" ]; then
@@ -30,9 +32,10 @@ if [ ! -d "$PH_DIR" ]; then
 fi
 
 if read -r -t "$wait_timeout" _ < <(getevent -ql); then
-    echo "- You have pressed a key, skip replacing"
-else
-    echo "- You do NOT press any key after ${timeout_seconds}s"
+    echo "- You have pressed a key"
+    echo "- or touch screen at once"
+    echo "- skip replacing"
+    return 0
 fi
 echo "- Replace with placeholder apks"
 
