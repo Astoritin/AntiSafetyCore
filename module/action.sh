@@ -6,7 +6,7 @@ FORCE_REPLACE=true
 CONFIG_DIR="/data/adb/antisafetycore"
 PH_DIR="$CONFIG_DIR/placeholder"
 
-wait_timeout=2
+wait_timeout=4
 
 MOD_INTRO="Fight against SafetyCore and KeyVerifier"
 SEPARATE_LINE="---------------------------------------------"
