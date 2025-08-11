@@ -92,16 +92,24 @@ check_existed_app() {
 
 update_config_var() {
     key_name="$1"
-    key_value="$2"
-    file_path="$3"
+    file_path="$2"
+    expected_value="$3"
+    append_mode="${4:-false}"
 
-    if [ -z "$key_name" ] || [ -z "$key_value" ] || [ -z "$file_path" ]; then
+    if [ -z "$key_name" ] || [ -z "$expected_value" ] || [ -z "$file_path" ]; then
         return 1
     elif [ ! -f "$file_path" ]; then
         return 2
     fi
 
-    sed -i "/^${key_name}=/c\\${key_name}=${key_value}" "$file_path"
+    if grep -q "^${key_name}=" "$file_path"; then
+        [ "$append_mode" = true ] && return 0
+        sed -i "/^${key_name}=/c\\${key_name}=${expected_value}" "$file_path"
+    else
+        [ -n "$(tail -c1 "$file_path")" ] && echo >> "$file_path"
+        printf '%s=%s\n' "$key_name" "$expected_value" >> "$file_path"
+    fi
+
     result_update_value=$?
     return "$result_update_value"
 }
@@ -119,15 +127,23 @@ PH_KeyVerifier="$PH_DIR/KeyVerifierPlaceHolder.apk"
 check_existed_app "$PH_SafetyCore" "$SafetyCore" && replaced_sc=true
 check_existed_app "$PH_KeyVerifier" "$KeyVerifier" && replaced_kv=true
 
-if [ "$replaced_sc" = "true" ] && [ "$replaced_kv" = "true" ]; then
-    desc_state="✅Cleared. Slain: ✅SafetyCore, ✅KeyVerifier"
+mod_state="✅Done."
+mod_prefix="Replaced: "
+mod_separator=", "
+mod_slain_sc="✅SafetyCore"
+mod_slain_kv="✅KeyVerifier"
+
+if [ "$replaced_sc" = "false" ] && [ "$replaced_kv" = "false" ]; then
+    mod_state="❌No effect."
+    mod_prefix="Something went wrong!"
+    mod_separator=""
+elif [ "$replaced_sc" = "true" ] && [ "$replaced_kv" = "true" ]; then
+    mod_state="✅All done."
 elif [ "$replaced_sc" = "true" ]; then
-    desc_state="✅Done. Slain: ✅SafetyCore"
+    mod_slain_kv=""
 elif [ "$replaced_kv" = "true" ]; then
-    desc_state="✅Done. Slain: ✅KeyVerifier"
-else
-    desc_state="❌No effect. Something went wrong!"
+    mod_slain_sc=""
 fi
 
-DESCRIPTION="[$desc_state] $MOD_INTRO"
-update_config_var "description" "$DESCRIPTION" "$MODULE_PROP"
+DESCRIPTION="[${mod_state} ${mod_prefix}${mod_slain_sc}${mod_separator}${mod_slain_kv}] $MOD_INTRO"
+update_config_var "description" "$MODULE_PROP" "$DESCRIPTION"
