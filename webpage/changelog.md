@@ -1,23 +1,20 @@
 ## Anti SafetyCore / 反 SafetyCore
 A Magisk module to fight against Android System SafetyCore and Android System Key Verifier installed by Google quietly / 一个对抗 Google 静默安装的 SafetyCore 和 Key Verifier 的 Magisk 模块
 
-### 1.1.7
+### 1.1.8
 
-#### EN
-
-- Fix a serious bug which caused Anti SafetyCore does NOT work at all
-> I have found this today since I am updating Google APPs in my Android 11 device
-> And as updating APPs in Google Play Store, I find SafetyCore appears
-> in my device quietly lol, after I installed my module 
-> and what I found is it does NOT work at all, which makes me confused a lot
-> Finally I found the careless but serious logical problem of codes and correct it T^T
-- Improve the compatibility (explicitly add `su -c` back for some special cases)
-
-#### CN
-
-- 修复一个严重bug，该bug曾导致反 SafetyCore 压根没生效
-> 我发现这个是因为今天我在自己的 安卓 11 的设备更新谷歌系 APP
-> 当在 Play 商店更新 APP时，我发现 SafetyCore 悄悄出现在我设备内
-> 在我刷入自己的模块时发现它压根没生效，这让我很困惑
-> 最终我找到了粗心大意但很严重的逻辑问题的代码，然后更正了它
-- 提升兼容性 (重新显式添加 `su -c` 以应对一些特殊情形)
+- Optimize minor codes
+- Add back /META-INF to fix module cannot be flashed in KernelSU manager by choosing the zip file itself
+> Magisk has ignored the /META-INF folder completely, as KernelSU ignores it too, but only for online updating
+> that means if you choose to flash modules offline (by choosing the zip in your storage)
+> KernelSU will still check the existence of /META-INF (even if module itself doesn't need it at all)
+> If it does NOT exist...the result is failed to flash in manager offline
+> I think the method of KernelSU dealing with /META-INF is weird but thinking about some old modules will add their custom scripts in /META-INF so...
+---
+- 优化少量代码
+- 将 /META-INF 文件夹再度添加回模块中以修复在 KernelSU 无法从本地刷入该模块的问题
+> Magisk 已经做到完全忽略 /META-INF 文件夹，而 KernelSU 仅在在线更新模块时忽略下载的zip里的 /META-INF 文件夹
+> 这意味着你如果选择离线刷入模块（即从你的存储中选择zip刷入）
+> KernelSU 仍然会检查 /META-INF 是否存在 （哪怕模块其实并不需要这个文件夹）
+> 如果 /META-INF 不存在就会刷入失败
+> 我个人认为 KernelSU 对 /META-INF 的处理很奇怪，但是考虑到有部分古早模块会添加自定义脚本到 /META-INF ，所以……
