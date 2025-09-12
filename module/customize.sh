@@ -7,7 +7,6 @@ PH_DIR="$CONFIG_DIR/placeholder"
 
 MOD_NAME="$(grep_prop name "$TMPDIR/module.prop")"
 MOD_VER="$(grep_prop version "$TMPDIR/module.prop") ($(grep_prop versionCode "$TMPDIR/module.prop"))"
-MOD_INTRO="Fight against SafetyCore and KeyVerifier."
 
 unzip -o "$ZIPFILE" "verify.sh" -d "$TMPDIR" >&2
 if [ ! -f "$TMPDIR/verify.sh" ]; then
@@ -59,6 +58,4 @@ eco " " " "
 print_line "42" "*"
 eco "Set permissions"
 set_perm_recursive "$MODPATH" 0 0 0755 0644
-eco "Welcome to use $MOD_NAME!"
-DESCRIPTION="[🙂Reboot to take effect.] $MOD_INTRO"
-update_config_var "description" "$MODPATH/module.prop" "$DESCRIPTION"
+eco "Welcome to use $MOD_NAME! (REBOOT TO TAKE EFFECT)."

@@ -5,7 +5,7 @@ CONFIG_DIR="/data/adb/antisafetycore"
 PH_DIR="$CONFIG_DIR/placeholder"
 
 MODULE_PROP="$MODDIR/module.prop"
-MOD_INTRO="Fight against SafetyCore and KeyVerifier."
+MOD_INTRO="GET LOST, SafetyCore and KeyVerifier!"
 
 replaced_sc="false"
 replaced_kv="false"
@@ -40,7 +40,7 @@ fetch_package_path_from_pm() {
 uninstall_package() {
     package_name="$1"
 
-    pm uninstall "$package_name" || su -c "pm uninstall $package_name"
+    pm uninstall "$package_name"
     result_uninstall_package=$?
     return "$result_uninstall_package"
 }
@@ -54,7 +54,7 @@ install_package() {
     package_basename=$(basename "$package_path")
     package_tmp="$TMPDIR/$package_basename"
 
-    pm install -i "com.android.vending" "$package_tmp" || su -c "pm install -i "com.android.vending" $package_tmp"
+    pm install -i "com.android.vending" "$package_tmp"
     result_install_package=$?
 
     rm -f "$package_tmp"

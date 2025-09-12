@@ -8,15 +8,16 @@ PH_DIR="$CONFIG_DIR/placeholder"
 
 wait_timeout=4
 
-MOD_INTRO="Fight against SafetyCore and KeyVerifier"
+MOD_INTRO="GET LOST, SafetyCore and KeyVerifier!"
 SEPARATE_LINE="---------------------------------------------"
 
 echo "$SEPARATE_LINE"
 echo "- Anti SafetyCore"
-echo "- By Astoritin Ambrosius"
+echo "- By Astoritin"
 echo "$SEPARATE_LINE"
 echo "- $MOD_INTRO"
 echo "$SEPARATE_LINE"
+echo "- This action is to"
 echo "- Replace SafetyCore and KeyVerifier"
 echo "- with placeholder app forcefully"
 echo "$SEPARATE_LINE"

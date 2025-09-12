@@ -133,30 +133,6 @@ print_line() {
 
 }
 
-update_config_var() {
-    key_name="$1"
-    file_path="$2"
-    expected_value="$3"
-    append_mode="${4:-false}"
-
-    if [ -z "$key_name" ] || [ -z "$expected_value" ] || [ -z "$file_path" ]; then
-        return 1
-    elif [ ! -f "$file_path" ]; then
-        return 2
-    fi
-
-    if grep -q "^${key_name}=" "$file_path"; then
-        [ "$append_mode" = true ] && return 0
-        sed -i "/^${key_name}=/c\\${key_name}=${expected_value}" "$file_path"
-    else
-        [ -n "$(tail -c1 "$file_path")" ] && echo >> "$file_path"
-        printf '%s=%s\n' "$key_name" "$expected_value" >> "$file_path"
-    fi
-
-    result_update_value=$?
-    return "$result_update_value"
-}
-
 show_system_info() {
 
     eco "Device: $(getprop ro.product.brand) $(getprop ro.product.model) ($(getprop ro.product.device))"
