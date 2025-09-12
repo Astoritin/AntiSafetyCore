@@ -21,17 +21,17 @@ fi
 
 . "$TMPDIR/verify.sh"
 
-eco "MODPATH: $MODPATH"
-eco "MOD_UPDATE_PATH: $MOD_UPDATE_PATH"
-eco "MOD_PATH: $MOD_PATH"
 eco "Set up $MOD_NAME"
 eco "Version: $MOD_VER"
 show_system_info
 install_env_check
 eco "Install from $ROOT_SOL app"
 eco "Root: $ROOT_SOL_DETAIL"
-[ -d "$MOD_PATH_OLD" ] && rm -f "$MOD_PATH_OLD/update" && eco "Remove: $MOD_PATH_OLD/update"
-[ -d "$MOD_PATH_OLD" ] && touch "$MOD_PATH_OLD/remove" && eco "Create: $MOD_PATH_OLD/remove"
+eco "[DEBUG] MODPATH: $MODPATH"
+eco "[DEBUG] MOD_UPDATE_PATH: $MOD_UPDATE_PATH"
+eco "[DEBUG] MOD_PATH: $MOD_PATH"
+[ -d "$MOD_PATH_OLD" ] && rm -f "$MOD_PATH_OLD/update" && eco "[DEBUG] Remove $MOD_PATH_OLD/update"
+[ -d "$MOD_PATH_OLD" ] && touch "$MOD_PATH_OLD/remove" && eco "[DEBUG] Create $MOD_PATH_OLD/remove"
 rm -rf "$CONFIG_DIR_OLD"
 rm -rf "$CONFIG_DIR"
 mkdir -p "$PH_DIR"
