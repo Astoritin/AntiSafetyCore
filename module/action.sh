@@ -3,7 +3,7 @@ MODDIR=${0%/*}
 
 FORCE_REPLACE=true
 
-CONFIG_DIR="/data/adb/antisafetycore"
+CONFIG_DIR="/data/adb/anti_safetycore"
 PH_DIR="$CONFIG_DIR/placeholder"
 
 wait_timeout=4

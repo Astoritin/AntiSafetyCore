@@ -1,7 +1,8 @@
 #!/system/bin/sh
 SKIPUNZIP=1
 
-CONFIG_DIR="/data/adb/antisafetycore"
+CONFIG_DIR_OLD="/data/adb/antisafetycore"
+CONFIG_DIR="/data/adb/anti_safetycore"
 
 PH_DIR="$CONFIG_DIR/placeholder"
 
@@ -16,12 +17,15 @@ fi
 
 . "$TMPDIR/verify.sh"
 
+eco "MODDIR: $MODDIR"
+eco "MODPATH: $MODPATH"
 eco "Set up $MOD_NAME"
 eco "Version: $MOD_VER"
 show_system_info
 install_env_check
 eco "Install from $ROOT_SOL app"
 eco "Root: $ROOT_SOL_DETAIL"
+rm -rf "$CONFIG_DIR_OLD"
 rm -rf "$CONFIG_DIR"
 mkdir -p "$PH_DIR"
 extract "customize.sh" "$TMPDIR"
@@ -55,7 +59,8 @@ eco " " " "
 eco "1. Xposed module (e.g. Core Patch)" " "
 eco "2. Some custom ROM's inbuilt options" " "
 eco " " " "
+eco "    REBOOT TO TAKE EFFECT    " " "
 print_line "42" "*"
 eco "Set permissions"
 set_perm_recursive "$MODPATH" 0 0 0755 0644
-eco "Welcome to use $MOD_NAME! (REBOOT TO TAKE EFFECT)."
+eco "Welcome to use $MOD_NAME!"

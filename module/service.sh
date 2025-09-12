@@ -1,7 +1,7 @@
 #!/system/bin/sh
 MODDIR=${0%/*}
 
-CONFIG_DIR="/data/adb/antisafetycore"
+CONFIG_DIR="/data/adb/anti_safetycore"
 PH_DIR="$CONFIG_DIR/placeholder"
 
 MODULE_PROP="$MODDIR/module.prop"
