@@ -30,7 +30,8 @@ show_system_info
 install_env_check
 eco "Install from $ROOT_SOL app"
 eco "Root: $ROOT_SOL_DETAIL"
-[ -d "$MOD_PATH_OLD" ] && touch "$MOD_PATH_OLD/remove"
+[ -d "$MOD_PATH_OLD" ] && rm -f "$MOD_PATH_OLD/update" && eco "Remove: $MOD_PATH_OLD/update"
+[ -d "$MOD_PATH_OLD" ] && touch "$MOD_PATH_OLD/remove" && eco "Create: $MOD_PATH_OLD/remove"
 rm -rf "$CONFIG_DIR_OLD"
 rm -rf "$CONFIG_DIR"
 mkdir -p "$PH_DIR"
