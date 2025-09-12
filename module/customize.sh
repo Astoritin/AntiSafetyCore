@@ -6,6 +6,10 @@ CONFIG_DIR="/data/adb/anti_safetycore"
 
 PH_DIR="$CONFIG_DIR/placeholder"
 
+MOD_UPDATE_PATH="$(dirname "$MODPATH")"
+MOD_PATH="${MOD_UPDATE_PATH%_update}"
+MOD_PATH_OLD="$MOD_PATH/antisafetycore"
+
 MOD_NAME="$(grep_prop name "$TMPDIR/module.prop")"
 MOD_VER="$(grep_prop version "$TMPDIR/module.prop") ($(grep_prop versionCode "$TMPDIR/module.prop"))"
 
@@ -17,14 +21,16 @@ fi
 
 . "$TMPDIR/verify.sh"
 
-eco "MODDIR: $MODDIR"
 eco "MODPATH: $MODPATH"
+eco "MOD_UPDATE_PATH: $MOD_UPDATE_PATH"
+eco "MOD_PATH: $MOD_PATH"
 eco "Set up $MOD_NAME"
 eco "Version: $MOD_VER"
 show_system_info
 install_env_check
 eco "Install from $ROOT_SOL app"
 eco "Root: $ROOT_SOL_DETAIL"
+[ -d "$MOD_PATH_OLD" ] && touch "$MOD_PATH_OLD/remove"
 rm -rf "$CONFIG_DIR_OLD"
 rm -rf "$CONFIG_DIR"
 mkdir -p "$PH_DIR"
