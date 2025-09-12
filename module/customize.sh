@@ -67,6 +67,7 @@ eco "1. Xposed module (e.g. Core Patch)" " "
 eco "2. Some custom ROM's inbuilt options" " "
 eco " " " "
 eco "    REBOOT TO TAKE EFFECT    " " "
+eco " " " "
 print_line "42" "*"
 eco "Set permissions"
 set_perm_recursive "$MODPATH" 0 0 0755 0644
