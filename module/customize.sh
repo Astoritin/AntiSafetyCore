@@ -162,6 +162,7 @@ extract "action.sh"
 extract "uninstall.sh"
 extract "placeholder/SafetyCorePlaceHolder.apk" "$CONFIG_DIR"
 extract "placeholder/KeyVerifierPlaceHolder.apk" "$CONFIG_DIR"
+ecol
 ecos " "
 ecos "NOTICE & WARNING"
 ecol
