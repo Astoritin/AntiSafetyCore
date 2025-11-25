@@ -27,7 +27,7 @@ for pkg in $PACKAGES; do
     eco " pm uninstall --user all $pkg ($result_uninstall)"
     if pm list packages | grep -q "$pkg"; then
         eco " $pkg still exists"
-        for user in 0 10 11 12 13 14 15; do
+        for user in 0 10 11 12 13 14 15 999; do
             pm uninstall --user "$user" "$pkg" 2>/dev/null
             result_uninstall=$?
             eco "pm uninstall --user $user $pkg ($result_uninstall)"

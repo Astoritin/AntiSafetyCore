@@ -128,7 +128,7 @@ check_existed_app "$PH_SafetyCore" "$SafetyCore" && replaced_sc=true
 check_existed_app "$PH_KeyVerifier" "$KeyVerifier" && replaced_kv=true
 
 mod_state="✅Done."
-mod_prefix="Replaced: "
+mod_prefix=""
 mod_separator=", "
 mod_slain_sc="✅SafetyCore"
 mod_slain_kv="✅KeyVerifier"

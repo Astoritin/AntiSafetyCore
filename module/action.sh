@@ -9,7 +9,7 @@ PH_DIR="$CONFIG_DIR/placeholder"
 wait_timeout=4
 
 MOD_INTRO="GET LOST, SafetyCore and KeyVerifier!"
-SEPARATE_LINE="---------------------------------------------"
+SEPARATE_LINE="***************************************"
 
 echo "$SEPARATE_LINE"
 echo "- Anti SafetyCore"
@@ -43,4 +43,4 @@ echo "- Replace with placeholder apks"
 . "$MODDIR/service.sh"
 
 echo "$SEPARATE_LINE"
-echo "- Case closed!"
+echo "- Done"
