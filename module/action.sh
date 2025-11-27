@@ -6,7 +6,7 @@ FORCE_REPLACE=true
 CONFIG_DIR="/data/adb/anti_safetycore"
 PH_DIR="$CONFIG_DIR/placeholder"
 
-wait_timeout=4
+wait_timeout=3
 
 MOD_INTRO="GET LOST, SafetyCore & KeyVerifier!"
 SEPARATE_LINE="***************************************"
