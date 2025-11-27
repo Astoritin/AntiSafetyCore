@@ -8,7 +8,7 @@ PH_DIR="$CONFIG_DIR/placeholder"
 
 wait_timeout=4
 
-MOD_INTRO="GET LOST, SafetyCore and KeyVerifier!"
+MOD_INTRO="GET LOST, SafetyCore & KeyVerifier!"
 SEPARATE_LINE="***************************************"
 
 echo "$SEPARATE_LINE"
