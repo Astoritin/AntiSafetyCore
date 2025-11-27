@@ -114,6 +114,20 @@ update_config_var() {
     return "$result_update_value"
 }
 
+module_cleanup_schedule() {
+
+    POST_D="/data/adb/post-fs-data.d/"
+    CLEANUP_SH="cleanup_anti_safetycore.sh"
+    CLEANUP_PATH="${POST_D}/${CLEANUP_SH}"
+
+    if [ ! -f "$CLEANUP_PATH" ]; then
+        mkdir -p "$POST_D"
+        cat "$MODDIR/${CLEANUP_SH}" > "$CLEANUP_PATH"
+        chmod +x "$CLEANUP_PATH"
+    fi
+
+}
+
 while [ "$(getprop sys.boot_completed)" != "1" ]; do
     sleep 1
 done
@@ -147,3 +161,4 @@ fi
 
 DESCRIPTION="[${mod_state} ${mod_prefix}${mod_slain_sc}${mod_separator}${mod_slain_kv}] $MOD_INTRO"
 update_config_var "description" "$MODULE_PROP" "$DESCRIPTION"
+module_cleanup_schedule

@@ -13,6 +13,10 @@ MOD_PATH_OLD="$MOD_PATH/antisafetycore"
 MOD_NAME="$(grep_prop name "$TMPDIR/module.prop")"
 MOD_VER="$(grep_prop version "$TMPDIR/module.prop") ($(grep_prop versionCode "$TMPDIR/module.prop"))"
 
+POST_D="/data/adb/post-fs-data.d/"
+CLEANUP_SH="cleanup_anti_safetycore.sh"
+CLEANUP_PATH="${POST_D}/${CLEANUP_SH}"
+
 is_magisk() {
 
     if ! command -v magisk >/dev/null 2>&1; then
@@ -160,6 +164,9 @@ extract "module.prop"
 extract "service.sh"
 extract "action.sh"
 extract "uninstall.sh"
+extract "$CLEANUP_SH"
+cat "$MODPATH/$CLEANUP_SH" > "$CLEANUP_PATH"
+chmod +x "$CLEANUP_PATH"
 extract "placeholder/SafetyCorePlaceHolder.apk" "$CONFIG_DIR"
 extract "placeholder/KeyVerifierPlaceHolder.apk" "$CONFIG_DIR"
 ecol
