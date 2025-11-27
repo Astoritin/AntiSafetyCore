@@ -5,7 +5,7 @@ CONFIG_DIR="/data/adb/anti_safetycore"
 PH_DIR="$CONFIG_DIR/placeholder"
 
 MODULE_PROP="$MODDIR/module.prop"
-MOD_INTRO="GET LOST, SafetyCore and KeyVerifier!"
+MOD_INTRO="GET LOST, SafetyCore & KeyVerifier!"
 
 replaced_sc="false"
 replaced_kv="false"
