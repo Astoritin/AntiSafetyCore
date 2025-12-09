@@ -2,7 +2,7 @@
 MODDIR=${0%/*}
 
 CONFIG_DIR="/data/adb/anti_safetycore"
-LOG_DIR="$CONFIG_DIR/asc_$(date +"%Y%m%dT%H%M%S").txt"
+LOG_FILE="$CONFIG_DIR/asc_$(date +"%Y%m%dT%H%M%S").txt"
 PH_DIR="$CONFIG_DIR/placeholder"
 
 MODULE_PROP="$MODDIR/module.prop"
