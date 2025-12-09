@@ -3,6 +3,11 @@
 # **反 SafetyCore / Anti SafetyCore**
 一个对抗 Google 静默安装的 SafetyCore 和 Key Verifier 的 Magisk 模块。
 
+# 注意
+**替换功能目前仅在解密 Data 分区的设备上工作。**   
+我已经发现了在 Data 分区加密的设备上使用本模块的一些问题 (替换功能可能**无法**在这些设备上工作)。
+在解决这些问题以后，我会发布1.2.0的候选版本以用于测试。
+
 ## 支持的 Root 方案
 [Magisk](https://github.com/topjohnwu/Magisk) (推荐!) 丨 [KernelSU](https://github.com/tiann/KernelSU) (推荐!) 丨 [APatch](https://github.com/bmax121/APatch) (尚未测试，理论可用)
 

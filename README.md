@@ -3,6 +3,11 @@ English | [简体中文](webpage/locales/README_ZH-CN.md)
 # **Anti SafetyCore / 反 SafetyCore**
 A Magisk module to fight against Android System SafetyCore and Android System Key Verifier installed by Google quietly.
 
+# NOTICE
+**The replace features may work on Data decrypted devices only so far.**   
+I have found some issues of using this module in Data partition encrypted devices (Replace feature may **NOT** work on these devices).
+After these issues solved, I will release 1.2.0-rc version for testing.
+
 ## Supported Root Solution
 [Magisk](https://github.com/topjohnwu/Magisk) (Recommended!) 丨 [KernelSU](https://github.com/tiann/KernelSU) (Recommended!) 丨 [APatch](https://github.com/bmax121/APatch) (Not test yet)
 
