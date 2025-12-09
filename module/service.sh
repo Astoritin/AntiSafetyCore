@@ -110,12 +110,88 @@ show_system_info() {
 
 }
 
+get_config_var() {
+    key=$1
+    config_file=$2
+
+    if [ -z "$key" ] || [ -z "$config_file" ]; then
+        return 1
+    elif [ ! -f "$config_file" ]; then
+        return 2
+    fi
+    
+    value=$(awk -v key="$key" '
+        BEGIN {
+            key_regex = "^" key "="
+            found = 0
+            in_quote = 0
+            value = ""
+        }
+        $0 ~ key_regex && !found {
+            sub(key_regex, "")
+            remaining = $0
+
+            sub(/^[[:space:]]*/, "", remaining)
+
+            if (remaining ~ /^"/) {
+                in_quote = 1
+                remaining = substr(remaining, 2)
+
+                if (match(remaining, /"([[:space:]]*)$/)) {
+                    value = substr(remaining, 1, RSTART - 1)
+                    in_quote = 0
+                } else {
+                    value = remaining
+                    while ((getline remaining) > 0) {
+                        if (match(remaining, /"([[:space:]]*)$/)) {
+                            line_part = substr(remaining, 1, RSTART - 1)
+                            value = value "\n" line_part
+                            in_quote = 0
+                            break
+                        } else {
+                            value = value "\n" remaining
+                        }
+                    }
+                    if (in_quote) exit 1
+                }
+                found = 1
+            } else {
+                gsub(/^[[:space:]]+|[[:space:]]+$/, "", remaining)
+                value = remaining
+                found = 1
+            }
+            if (found) exit 0
+        }
+        END {
+            if (!found) exit 1
+            gsub(/[[:space:]]+$/, "", value)
+            print value
+        }
+    ' "$config_file")
+
+    awk_exit_state=$?
+    case $awk_exit_state in
+        1)  return 5 ;;
+        0)  ;;
+        *)  return 6 ;;
+    esac
+
+    value=$(echo "$value" | dos2unix | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | sed 's/'\''/'\\\\'\'''\''/g' | sed 's/[$;&|<>`"()]/\\&/g')
+
+    if [ -n "$value" ]; then
+        echo "$value"
+        return 0
+    else
+        return 1
+    fi
+}
+
 module_intro() {
 
     MODULE_PROP="$MODDIR/module.prop"
-    MOD_NAME="$(grep_config_var "name" "$MODULE_PROP")"
-    MOD_AUTHOR="$(grep_config_var "author" "$MODULE_PROP")"
-    MOD_VER="$(grep_config_var "version" "$MODULE_PROP") ($(grep_config_var "versionCode" "$MODULE_PROP"))"
+    MOD_NAME="$(get_config_var "name" "$MODULE_PROP")"
+    MOD_AUTHOR="$(get_config_var "author" "$MODULE_PROP")"
+    MOD_VER="$(get_config_var "version" "$MODULE_PROP") ($(get_config_var "versionCode" "$MODULE_PROP"))"
 
     install_env_check
     ecol
@@ -226,8 +302,10 @@ check_existed_app() {
     existed_apk_path=$(fetch_package_path_from_pm "$apk_package_name")
     file_compare "$apk_to_install" "$existed_apk_path"
     case "$?" in
-    0) return 0;;
-    1|3) check_and_install_apk "$apk_to_install" "$apk_package_name";;
+    0)  eco "Same, no need to uninstall & install again"
+        return 0;;
+    1|3)    eco "Different, start uninstalling & installing" 
+            check_and_install_apk "$apk_to_install" "$apk_package_name";;
     esac
 }
 
