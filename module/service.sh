@@ -1,6 +1,8 @@
 #!/system/bin/sh
 MODDIR=${0%/*}
 
+data_state=$(resetprop "ro.crypto.state")
+
 CONFIG_DIR="/data/adb/anti_safetycore"
 LOG_FILE="$CONFIG_DIR/asc_$(date +"%Y%m%dT%H%M%S").txt"
 PH_DIR="$CONFIG_DIR/placeholder"
@@ -230,7 +232,6 @@ fetch_package_path_from_pm() {
 }
 
 check_data_encrypted() {
-    data_state=$(getprop "ro.crypto.state")
     if [ "$data_state" = "encrypted" ]; then
         return 0
     else
@@ -289,6 +290,8 @@ install_package() {
 
     pm install -i "com.android.vending" "$package_tmp"
     result_install_package=$?
+
+    eco "Install package $package_path ($result_install_package)"
 
     rm -f "$package_tmp"
     return "$result_install_package"

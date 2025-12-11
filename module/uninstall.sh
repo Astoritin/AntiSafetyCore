@@ -7,12 +7,13 @@ rm -rf "/data/adb/anti_safetycore"
 cat > "/data/adb/service.d/uninstall_anti_safetycore.sh" << 'EOF'
 #!/system/bin/sh
 
+data_state=$(resetprop "ro.crypto.state")
+
 while [ "$(getprop sys.boot_completed)" != "1" ]; do
     sleep 1
 done
 
 check_data_encrypted() {
-    data_state=$(getprop "ro.crypto.state")
     if [ "$data_state" = "encrypted" ]; then
         return 0
     else
@@ -47,11 +48,8 @@ uninstall_package() {
             sleep 1
         done
     fi
-
     pm uninstall "$package_name"
-    result_uninstall_package=$?
-    eco "Uninstall package $package_name ($result_uninstall_package)"
-    return "$result_uninstall_package"
+
 }
 
 while [ "$(getprop vold.decrypt)" = "1" ]; do
