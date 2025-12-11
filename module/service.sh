@@ -1,7 +1,7 @@
 #!/system/bin/sh
 MODDIR=${0%/*}
 
-data_state=$(resetprop "ro.crypto.state")
+data_state=$(getprop "ro.crypto.state")
 
 CONFIG_DIR="/data/adb/anti_safetycore"
 LOG_FILE="$CONFIG_DIR/asc_$(date +"%Y%m%dT%H%M%S").txt"

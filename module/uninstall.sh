@@ -7,7 +7,7 @@ rm -rf "/data/adb/anti_safetycore"
 cat > "/data/adb/service.d/uninstall_anti_safetycore.sh" << 'EOF'
 #!/system/bin/sh
 
-data_state=$(resetprop "ro.crypto.state")
+data_state=$(getprop "ro.crypto.state")
 
 while [ "$(getprop sys.boot_completed)" != "1" ]; do
     sleep 1
