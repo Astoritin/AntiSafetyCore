@@ -231,7 +231,6 @@ fetch_package_path_from_pm() {
 
 check_data_encrypted() {
     data_state=$(getprop "ro.crypto.state")
-
     if [ "$data_state" = "encrypted" ]; then
         return 0
     else
@@ -241,7 +240,6 @@ check_data_encrypted() {
 
 check_screen_unlock() {
     keyguard_state=$(dumpsys window policy 2>/dev/null)
-
     if echo "$keyguard_state" | grep -A5 "KeyguardServiceDelegate" | grep -q "showing=false"; then
         eco "KeyguardServiceDelegate: false"
         return 0
@@ -260,7 +258,6 @@ check_screen_unlock() {
         eco "Catch screen focus successfully, unlock detected"
         return 0
     fi
-
     eco "Locked still, wait for unlocking"
     return 1
 }
