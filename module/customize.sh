@@ -173,7 +173,8 @@ extract "placeholder/SafetyCorePlaceHolder.apk" "$CONFIG_DIR"
 extract "placeholder/KeyVerifierPlaceHolder.apk" "$CONFIG_DIR"
 ecol
 ecos " "
-ecos "NOTICE & WARNING"
+ecos "    NOTICE & WARNING"
+ecos " "
 ecol
 ecos " "
 ecos "Although $MOD_NAME will automatically"
