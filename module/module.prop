@@ -1,7 +1,7 @@
 id=anti_safetycore
 name=Anti SafetyCore
-version=v1.1.9-beta1
-versionCode=119
+version=v1.2.0-RC1
+versionCode=120
 author=Astoritin
 description=GET LOST, SafetyCore & KeyVerifier!
 updateJson=https://raw.githubusercontent.com/Astoritin/AntiSafetyCore/main/webpage/update.json

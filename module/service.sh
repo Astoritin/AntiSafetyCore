@@ -229,29 +229,43 @@ fetch_package_path_from_pm() {
     echo "$package_path"
 }
 
+check_screen_unlock() {
+    keyguard_state=$(dumpsys window policy 2>/dev/null)
+
+    if echo "$keyguard_state" | grep -A5 "KeyguardServiceDelegate" | grep -q "showing=false"; then
+        eco "KeyguardServiceDelegate: false"
+        return 0
+    fi
+    if echo "$keyguard_state" | grep -q -E "mShowingLockscreen=false"; then
+        eco "mShowingLockscreen=false"
+        return 0
+    fi
+    if echo "$keyguard_state" | grep -q -E "mDreamingLockscreen=false"; then
+        eco "mDreamingLockscreen=false"
+        return 0
+    fi
+
+    screen_focus=$(dumpsys window 2>/dev/null | grep -i mCurrentFocus)
+    if echo "$screen_focus" | grep -q -E "LAUNCHER|SETTINGS" && ! echo "$screen_focus" | grep -q -i "keyguard|lockscreen"; then
+        eco "Catch screen focus successfully, unlock detected"
+        return 0
+    fi
+
+    eco "Locked still, wait for unlocking"
+    return 1
+}
+
 uninstall_package() {
     package_name="$1"
-    countdown=60
-    elapsed=0
 
-    while pm list packages | grep -q "$package_name"; do
-
-        pm uninstall "$package_name"
-        result_uninstall_package=$?
-    
-        if [ "$result_uninstall_package" -eq 0 ]; then
-            eco "Uninstall successfully"
-            return 0
-        elif [ "$elapsed" -ge "$countdown" ]; then
-            eco "Uninstall failed (${result_uninstall_package}), elapsed ${elapsed} x 2"
-            return 1
-        fi
-        elapsed=$((elapsed + 1))
-        sleep 2
+    while ! check_screen_unlock; do
+        sleep 1
     done
 
-    eco "Package ${package_name} not found"
-    return 2
+    pm uninstall "$package_name"
+    result_uninstall_package=$?
+    eco "Uninstall package $package_name ($result_uninstall_package)"
+    return "$result_uninstall_package"
 }
 
 install_package() {

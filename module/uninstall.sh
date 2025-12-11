@@ -11,26 +11,33 @@ while [ "$(getprop sys.boot_completed)" != "1" ]; do
     sleep 1
 done
 
+check_screen_unlock() {
+    keyguard_state=$(dumpsys window policy 2>/dev/null)
+    if echo "$keyguard_state" | grep -A5 "KeyguardServiceDelegate" | grep -q "showing=false"; then
+        return 0
+    fi
+    if echo "$keyguard_state" | grep -q -E "mShowingLockscreen=false"; then
+        return 0
+    fi
+    if echo "$keyguard_state" | grep -q -E "mDreamingLockscreen=false"; then
+        return 0
+    fi
+
+    screen_focus=$(dumpsys window 2>/dev/null | grep -i mCurrentFocus)
+    if echo "$screen_focus" | grep -q -E "LAUNCHER|SETTINGS" && ! echo "$screen_focus" | grep -q -i "keyguard|lockscreen"; then
+        return 0
+    fi
+    return 1
+}
+
 uninstall_package() {
     package_name="$1"
-    countdown=60
-    elapsed=0
 
-    while pm list packages | grep -q "$package_name"; do
-
-        pm uninstall "$package_name"
-        result_uninstall_package=$?
-    
-        if [ "$result_uninstall_package" -eq 0 ]; then
-            return 0
-        elif [ "$elapsed" -ge "$countdown" ]; then
-            return 1
-        fi
-        elapsed=$((elapsed + 1))
-        sleep 2
+    while ! check_screen_unlock; do
+        sleep 1
     done
 
-    return 2
+    pm uninstall "$package_name"
 }
 
 while [ "$(getprop vold.decrypt)" = "1" ]; do
