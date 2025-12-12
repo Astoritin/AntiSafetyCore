@@ -274,7 +274,7 @@ uninstall_package() {
 
     pm uninstall "$package_name"
     result_uninstall_package=$?
-    eco "Uninstall package $package_name ($result_uninstall_package)"
+    eco "pm uninstall $package_name ($result_uninstall_package)"
     return "$result_uninstall_package"
 }
 
@@ -291,7 +291,7 @@ install_package() {
     pm install -i "com.android.vending" "$package_tmp"
     result_install_package=$?
 
-    eco "Install package $package_path ($result_install_package)"
+    eco "pm install -i com.android.vending $package_tmp ($result_install_package)"
 
     rm -f "$package_tmp"
     return "$result_install_package"
