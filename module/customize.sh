@@ -175,13 +175,6 @@ ecos "    NOTICE & WARNING"
 ecos " "
 ecol
 ecos " "
-ecos "This is a Release Candidate version of $MOD_NAME"
-ecos "You can find and submit logs in $CONFIG_DIR if facing issues"
-ecos "Logging function will be removed again"
-ecos "after all done"
-ecos " "
-ecol
-ecos " "
 ecos "Although $MOD_NAME will automatically"
 ecos "uninstall and reinstall SafetyCore"
 ecos "and KeyVerifier with placeholder APPs"
