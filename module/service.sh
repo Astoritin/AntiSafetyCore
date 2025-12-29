@@ -152,7 +152,7 @@ update_config_var() {
     return "$result_update_value"
 }
 
-module_cleanup_schedule() {
+module_description_cleanup_schedule() {
 
     POST_D="/data/adb/post-fs-data.d/"
     CLEANUP_SH="cleanup_anti_safetycore.sh"
@@ -199,4 +199,4 @@ fi
 
 DESCRIPTION="[${mod_state} ${mod_prefix}${mod_slain_sc}${mod_separator}${mod_slain_kv}] $MOD_INTRO"
 update_config_var "description" "$MODULE_PROP" "$DESCRIPTION"
-module_cleanup_schedule
+module_description_cleanup_schedule

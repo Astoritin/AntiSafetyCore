@@ -92,7 +92,7 @@ extract "placeholder/SafetyCorePlaceHolder.apk" "$CONFIG_DIR"
 extract "placeholder/KeyVerifierPlaceHolder.apk" "$CONFIG_DIR"
 ecol
 ecoe
-ecos "    NOTICE & WARNING"
+ecos "    NOTICE    "
 ecoe
 ecol
 ecoe
@@ -120,4 +120,4 @@ ecoe
 ecol
 ui_print "- Setting permissions"
 set_perm_recursive "$MODPATH" 0 0 0755 0644
-ui_print "- Welcome to use $MOD_NAME!"
+ui_print "- Welcome to $MOD_NAME!"

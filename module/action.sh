@@ -3,29 +3,38 @@ MODDIR=${0%/*}
 
 FORCE_REPLACE=true
 
+ecol() {
+
+    length=39
+    symbol=*
+
+    line=$(printf "%-${length}s" | tr ' ' "$symbol")
+    ui_print "$line"
+
+}
+
 CONFIG_DIR="/data/adb/anti_safetycore"
 PH_DIR="$CONFIG_DIR/placeholder"
 
 wait_timeout=3
 
 MOD_INTRO="GET LOST, SafetyCore & KeyVerifier!"
-SEPARATE_LINE="***************************************"
 
-echo "$SEPARATE_LINE"
+ecol
 echo " Anti SafetyCore"
 echo " By Astoritin"
-echo "$SEPARATE_LINE"
+ecol
 echo " $MOD_INTRO"
-echo "$SEPARATE_LINE"
+ecol
 echo " This action is to"
 echo " Replace SafetyCore and KeyVerifier"
 echo " with placeholder app forcefully"
-echo "$SEPARATE_LINE"
+ecol
 echo " Will start after $((wait_timeout - 1)) seconds"
 echo " Press any key or"
 echo " touch screen at once"
 echo " to skip replacing"
-echo "$SEPARATE_LINE"
+ecol
 
 if [ ! -d "$PH_DIR" ]; then
     echo " Placeholder dir does NOT exist!"
@@ -42,5 +51,5 @@ echo " Replace with placeholder apks"
 
 . "$MODDIR/service.sh"
 
-echo "$SEPARATE_LINE"
+ecol
 echo " Done"
