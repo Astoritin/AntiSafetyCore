@@ -1,12 +1,10 @@
-English | [简体中文](webpage/locales/README_ZH-CN.md)
+English / [简体中文](webpage/locales/README_ZH-CN.md)
 
 # **Anti SafetyCore**
 A Magisk module to fight against the behavior of installing Android System SafetyCore and Android System Key Verifier by Google quietly.
 
 ## Supported Root Solution
-- [Magisk](https://github.com/topjohnwu/Magisk)
-- [KernelSU](https://github.com/tiann/KernelSU)
-- [APatch](https://github.com/bmax121/APatch)
+[Magisk](https://github.com/topjohnwu/Magisk) / [KernelSU](https://github.com/tiann/KernelSU) / [APatch](https://github.com/bmax121/APatch)
 
 ## Why this module exists?
 1. **I hate installing apps silently so much.** *——As installing apps silently in the background, uninstalling apps silently and updating apps automatically & silently are the most favorite dirty things Google loves to do, LOL.*

@@ -1,12 +1,10 @@
-[English](README.md) | 简体中文
+[English](README.md) / 简体中文
 
-# **反 SafetyCore | Anti SafetyCore**
+# **反 SafetyCore / Anti SafetyCore**
 一个对抗 Google 静默安装 SafetyCore 和 Key Verifier 这一行为的 Magisk 模块。
 
 ## 支持的 Root 方案
-- [Magisk](https://github.com/topjohnwu/Magisk)
-- [KernelSU](https://github.com/tiann/KernelSU)
-- [APatch](https://github.com/bmax121/APatch)
+[Magisk](https://github.com/topjohnwu/Magisk) / [KernelSU](https://github.com/tiann/KernelSU) / [APatch](https://github.com/bmax121/APatch)
 
 ## 为什么存在这个模块?
 1. **我很反感静默安装这一行为。** *——而谷歌偏偏最喜欢做包括但不限于在后台静默安装 、静默卸载、后台自动更新等在阴暗中爬行的事情。*
