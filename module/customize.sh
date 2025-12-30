@@ -92,7 +92,7 @@ extract "placeholder/SafetyCorePlaceHolder.apk" "$CONFIG_DIR"
 extract "placeholder/KeyVerifierPlaceHolder.apk" "$CONFIG_DIR"
 ecol
 ecoe
-ecos "    NOTICE    "
+ecos "              NOTICE"
 ecoe
 ecol
 ecoe

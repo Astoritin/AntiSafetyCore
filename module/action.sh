@@ -9,7 +9,7 @@ ecol() {
     symbol=*
 
     line=$(printf "%-${length}s" | tr ' ' "$symbol")
-    ui_print "$line"
+    echo "$line"
 
 }
 
