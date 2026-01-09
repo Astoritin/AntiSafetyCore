@@ -67,6 +67,7 @@ check_screen_unlock() {
 }
 
 uninstall_package() {
+
     package_name="$1"
 
     if check_data_encrypted; then
@@ -76,8 +77,7 @@ uninstall_package() {
     fi
 
     pm uninstall "$package_name"
-    result_uninstall_package=$?
-    return "$result_uninstall_package"
+
 }
 
 install_package() {
