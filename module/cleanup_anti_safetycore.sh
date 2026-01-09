@@ -1,42 +1,33 @@
 #!/system/bin/sh
 
-DESCRIPTION="GET LOST, SafetyCore & KeyVerifier!"
-
 POST_D="/data/adb/post-fs-data.d/"
 CLEANUP_SH="cleanup_anti_safetycore.sh"
 CLEANUP_PATH="${POST_D}/${CLEANUP_SH}"
 
-MOD_DIR="/data/adb/modules/anti_safetycore"
-LITE_MOD_DIR="/data/adb/lite_modules/anti_safetycore"
+MODS_DIR="/data/adb/modules"
+[ -n "$(magisk -v | grep lite)" ] && MODS_DIR="/data/adb/lite_modules"
 
-update_config_var() {
-    key_name="$1"
-    file_path="$2"
-    expected_value="$3"
-    append_mode="${4:-false}"
+MOD_NAME="anti_safetycore"
+MOD_DIR="$MODS_DIR/$MOD_NAME"
+MOD_DESC="GET LOST, SafetyCore & KeyVerifier!"
 
-    if [ -z "$key_name" ] || [ -z "$expected_value" ] || [ -z "$file_path" ]; then
-        return 1
-    elif [ ! -f "$file_path" ]; then
-        return 2
-    fi
+update_key_value() {
+    key="$1"
+    conf="$2"
+    expected="$3"
+    append="${4:-false}"
 
-    if grep -q "^${key_name}=" "$file_path"; then
-        [ "$append_mode" = true ] && return 0
-        sed -i "/^${key_name}=/c\\${key_name}=${expected_value}" "$file_path"
+    [ -z "$key" ] || [ -z "$expected" ] || [ -z "$conf" ] || [ ! -f "$conf" ] && return 1
+
+    if grep -q "^${key}=" "$conf"; then
+        [ "$append" = true ] && return 0
+        sed -i "/^${key}=/c\\${key}=${expected}" "$conf"
     else
-        [ -n "$(tail -c1 "$file_path")" ] && echo >> "$file_path"
-        printf '%s=%s\n' "$key_name" "$expected_value" >> "$file_path"
+        [ -n "$(tail -c1 "$conf")" ] && echo >> "$conf"
+        printf '%s=%s\n' "$key" "$expected" >> "$conf"
     fi
-
-    result_update_value=$?
-    return "$result_update_value"
 }
 
-if [ -f "$MOD_DIR/disable" ]; then
-    update_config_var "description" "$MOD_DIR/module.prop" "$DESCRIPTION"
-elif [ -f "$LITE_MOD_DIR/disable" ]; then
-    update_config_var "description" "$LITE_MOD_DIR/module.prop" "$DESCRIPTION"
-fi
+[ -f "$MOD_DIR/disable" ] && update_key_value "description" "$MOD_DIR/module.prop" "$MOD_DESC"
 
 rm -f "${CLEANUP_PATH}"
