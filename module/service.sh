@@ -8,15 +8,19 @@ PH_DIR="$CONFIG_DIR/placeholder"
 
 MODULE_PROP="$MODDIR/module.prop"
 MOD_INTRO="GET LOST, SafetyCore & KeyVerifier!"
+LOCAL_TMP="/data/local/tmp"
 
 replaced_sc="false"
 replaced_kv="false"
 desc_state=""
 
+check_data_encrypted() { [ "$data_state" = "encrypted" ]; }
+
 file_compare() {
+
     file_a="$1"
     file_b="$2"
-
+    
     [ -z "$file_a" ] || [ ! -f "$file_a" ] && return 2
     [ -z "$file_b" ] || [ ! -f "$file_b" ] && return 3
     
@@ -29,41 +33,40 @@ file_compare() {
 }
 
 fetch_package_path_from_pm() {
+
     package_name=$1
     output_pm=$(pm path "$package_name")
 
     [ -z "$output_pm" ] && return 1
 
     package_path=$(echo "$output_pm" | cut -d':' -f2- | sed 's/^://' | head -n 1)
-
     echo "$package_path"
+
 }
 
-check_data_encrypted() {
-    if [ "$data_state" = "encrypted" ]; then
-        return 0
-    else
-        return 1
-    fi
-}
 
 check_screen_unlock() {
+
     keyguard_state=$(dumpsys window policy 2>/dev/null)
     if echo "$keyguard_state" | grep -A5 "KeyguardServiceDelegate" | grep -q "showing=false"; then
         return 0
     fi
-    if echo "$keyguard_state" | grep -q -E "mShowingLockscreen=false"; then
-        return 0
-    fi
-    if echo "$keyguard_state" | grep -q -E "mDreamingLockscreen=false"; then
+    if echo "$keyguard_state" | grep -q -E "mShowingLockscreen=false|mDreamingLockscreen=false"; then
         return 0
     fi
 
     screen_focus=$(dumpsys window 2>/dev/null | grep -i mCurrentFocus)
-    if echo "$screen_focus" | grep -q -E "LAUNCHER|SETTINGS" && ! echo "$screen_focus" | grep -q -i "keyguard|lockscreen"; then
-        return 0
-    fi
+    case $screen_focus in
+    *keyguard*|*lockscreen*) return 1 ;;
+    esac
+
+    case $screen_focus in
+    *[Ll][Aa][Uu][Nn][Cc][Hh][Ee][Rr]*|*[Ss][Ee][Tt][Tt][Ii][Nn][Gg][Ss]*) return 0 ;;
+    *) return 1 ;;
+    esac
+
     return 1
+
 }
 
 uninstall_package() {
@@ -81,30 +84,34 @@ uninstall_package() {
 }
 
 install_package() {
-    package_path="$1"
-    TMPDIR="/data/local/tmp"
 
-    cp "$package_path" "$TMPDIR"
+    package_path="$1"
+
+    cp "$package_path" "$LOCAL_TMP"
 
     package_basename=$(basename "$package_path")
-    package_tmp="$TMPDIR/$package_basename"
+    package_tmp="$LOCAL_TMP/$package_basename"
 
     pm install -i "com.android.vending" "$package_tmp"
     result_install_package=$?
 
     rm -f "$package_tmp"
     return "$result_install_package"
+
 }
 
 check_and_install_apk() {
+
     apk_to_install=$1
     apk_package_name=$2
 
     uninstall_package "$apk_package_name"
     install_package "$apk_to_install"
+
 }
 
 check_existed_app() {
+
     apk_to_install=$1
     apk_package_name=$2
 
@@ -126,30 +133,24 @@ check_existed_app() {
     0)  return 0;;
     1|3)    check_and_install_apk "$apk_to_install" "$apk_package_name";;
     esac
+
 }
 
-update_config_var() {
-    key_name="$1"
-    file_path="$2"
-    expected_value="$3"
-    append_mode="${4:-false}"
+update_key_value() {
+    key="$1"
+    conf="$2"
+    expected="$3"
+    append="${4:-false}"
 
-    if [ -z "$key_name" ] || [ -z "$expected_value" ] || [ -z "$file_path" ]; then
-        return 1
-    elif [ ! -f "$file_path" ]; then
-        return 2
-    fi
+    [ -z "$key" ] || [ -z "$expected" ] || [ -z "$conf" ] || [ ! -f "$conf" ] && return 1
 
-    if grep -q "^${key_name}=" "$file_path"; then
-        [ "$append_mode" = true ] && return 0
-        sed -i "/^${key_name}=/c\\${key_name}=${expected_value}" "$file_path"
+    if grep -q "^${key}=" "$conf"; then
+        [ "$append" = true ] && return 0
+        sed -i "/^${key}=/c\\${key}=${expected}" "$conf"
     else
-        [ -n "$(tail -c1 "$file_path")" ] && echo >> "$file_path"
-        printf '%s=%s\n' "$key_name" "$expected_value" >> "$file_path"
+        [ -n "$(tail -c1 "$conf")" ] && echo >> "$conf"
+        printf '%s=%s\n' "$key" "$expected" >> "$conf"
     fi
-
-    result_update_value=$?
-    return "$result_update_value"
 }
 
 module_description_cleanup_schedule() {
@@ -198,5 +199,5 @@ elif [ "$replaced_kv" = "true" ]; then
 fi
 
 DESCRIPTION="[${mod_state} ${mod_prefix}${mod_slain_sc}${mod_separator}${mod_slain_kv}] $MOD_INTRO"
-update_config_var "description" "$MODULE_PROP" "$DESCRIPTION"
+update_key_value "description" "$MODULE_PROP" "$DESCRIPTION"
 module_description_cleanup_schedule
