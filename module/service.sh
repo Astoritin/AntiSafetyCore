@@ -202,7 +202,7 @@ anti_safetycore_description_update() {
     fi
 
     if [ "$checkout_count" -gt 0 ]; then
-        DESCRIPTION="[${mod_state} ${mod_prefix}${mod_replace_sc}${mod_separator}${mod_replace_kv}, ⏰Runs ${checkout_count} cycle(s)] $MOD_INTRO"
+        DESCRIPTION="[${mod_state} ${mod_prefix}${mod_replace_sc}${mod_separator}${mod_replace_kv}, ⏰${checkout_count} time(s)] $MOD_INTRO"
     else
         DESCRIPTION="[${mod_state} ${mod_prefix}${mod_replace_sc}${mod_separator}${mod_replace_kv}] $MOD_INTRO"
     fi
@@ -225,7 +225,7 @@ while true; do
     [ -f "$KEEP_RUNNING_MARK" ] || exit 0
 
     checkout_count=$((checkout_count + 1))
-    sleep 5
+    sleep 1800
 
 done
 
