@@ -5,6 +5,7 @@ data_state=$(getprop "ro.crypto.state")
 
 CONFIG_DIR="/data/adb/anti_safetycore"
 PH_DIR="$CONFIG_DIR/placeholder"
+KEEP_RUNNING_MARK="$CONFIG_DIR/keep_running"
 
 MODULE_PROP="$MODDIR/module.prop"
 MOD_INTRO="GET LOST, SafetyCore & KeyVerifier!"
@@ -167,37 +168,64 @@ module_description_cleanup_schedule() {
 
 }
 
+anti_safetycore() {
+
+    SafetyCore="com.google.android.safetycore"
+    KeyVerifier="com.google.android.contactkeys"
+
+    PH_SafetyCore="$PH_DIR/SafetyCorePlaceHolder.apk"
+    PH_KeyVerifier="$PH_DIR/KeyVerifierPlaceHolder.apk"
+
+    check_existed_app "$PH_SafetyCore" "$SafetyCore" && replaced_sc=true
+    check_existed_app "$PH_KeyVerifier" "$KeyVerifier" && replaced_kv=true
+
+}
+
+anti_safetycore_description_update() {
+
+    mod_state="✅Done."
+    mod_prefix=""
+    mod_separator=", "
+    mod_replace_sc="✅SafetyCore"
+    mod_replace_kv="✅KeyVerifier"
+
+    if [ "$replaced_sc" = "false" ] && [ "$replaced_kv" = "false" ]; then
+        mod_state="❌No effect."
+        mod_prefix="Something went wrong!"
+        mod_separator=""
+    elif [ "$replaced_sc" = "true" ] && [ "$replaced_kv" = "true" ]; then
+        mod_state="✅All done."
+    elif [ "$replaced_sc" = "true" ]; then
+        mod_replace_kv=""
+    elif [ "$replaced_kv" = "true" ]; then
+        mod_replace_sc=""
+    fi
+
+    if [ "$checkout_count" -gt 0 ]; then
+        DESCRIPTION="[${mod_state} ${mod_prefix}${mod_replace_sc}${mod_separator}${mod_replace_kv}, ⏰Runs ${checkout_count} cycle(s)] $MOD_INTRO"
+    else
+        DESCRIPTION="[${mod_state} ${mod_prefix}${mod_replace_sc}${mod_separator}${mod_replace_kv}] $MOD_INTRO"
+    fi
+    update_key_value "description" "$MODULE_PROP" "$DESCRIPTION"
+
+}
+
 while [ "$(getprop sys.boot_completed)" != "1" ]; do
     sleep 1
 done
 
-SafetyCore="com.google.android.safetycore"
-KeyVerifier="com.google.android.contactkeys"
-
-PH_SafetyCore="$PH_DIR/SafetyCorePlaceHolder.apk"
-PH_KeyVerifier="$PH_DIR/KeyVerifierPlaceHolder.apk"
-
-check_existed_app "$PH_SafetyCore" "$SafetyCore" && replaced_sc=true
-check_existed_app "$PH_KeyVerifier" "$KeyVerifier" && replaced_kv=true
-
-mod_state="✅Done."
-mod_prefix=""
-mod_separator=", "
-mod_slain_sc="✅SafetyCore"
-mod_slain_kv="✅KeyVerifier"
-
-if [ "$replaced_sc" = "false" ] && [ "$replaced_kv" = "false" ]; then
-    mod_state="❌No effect."
-    mod_prefix="Something went wrong!"
-    mod_separator=""
-elif [ "$replaced_sc" = "true" ] && [ "$replaced_kv" = "true" ]; then
-    mod_state="✅All done."
-elif [ "$replaced_sc" = "true" ]; then
-    mod_slain_kv=""
-elif [ "$replaced_kv" = "true" ]; then
-    mod_slain_sc=""
-fi
-
-DESCRIPTION="[${mod_state} ${mod_prefix}${mod_slain_sc}${mod_separator}${mod_slain_kv}] $MOD_INTRO"
-update_key_value "description" "$MODULE_PROP" "$DESCRIPTION"
 module_description_cleanup_schedule
+checkout_count=0
+
+while true; do
+
+    anti_safetycore
+    anti_safetycore_description_update
+
+    [ -f "$KEEP_RUNNING_MARK" ] || exit 0
+
+    checkout_count=$((checkout_count + 1))
+    sleep 5
+
+done
+
