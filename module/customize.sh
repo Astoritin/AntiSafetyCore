@@ -13,6 +13,9 @@ MOD_PATH_OLD="$MOD_PATH/antisafetycore"
 MOD_NAME="$(grep_prop name "$TMPDIR/module.prop")"
 MOD_VER="$(grep_prop version "$TMPDIR/module.prop") ($(grep_prop versionCode "$TMPDIR/module.prop"))"
 
+keep_running_mark=false
+KEEP_RUNNING_MARK="$CONFIG_DIR/keep_running"
+
 POST_D="/data/adb/post-fs-data.d/"
 CLEANUP_SH="cleanup_anti_safetycore.sh"
 CLEANUP_PATH="${POST_D}/${CLEANUP_SH}"
@@ -76,11 +79,13 @@ extract "customize.sh" "$TMPDIR"
 
 ui_print "- Setting up $MOD_NAME"
 ui_print "- Version: $MOD_VER"
+[ -f "$KEEP_RUNNING_MARK" ] && keep_running_mark=true
 [ -d "$MOD_PATH_OLD" ] && rm -f "$MOD_PATH_OLD/update" && ui_print "- Removed update flag from old module id dir"
 [ -d "$MOD_PATH_OLD" ] && touch "$MOD_PATH_OLD/remove" && ui_print "- Set remove flag to old module id dir"
 [ -d "$CONFIG_DIR_OLD" ] && rm -rf "$CONFIG_DIR_OLD" && ui_print "- Removed old module id configuration dir"
 [ -d "$CONFIG_DIR" ] && rm -rf "$CONFIG_DIR" && ui_print "- Removed old configuration dir"
 init_dir "$PH_DIR"
+[ "$keep_running_mark" = true ] && touch "$KEEP_RUNNING_MARK"
 extract "module.prop"
 extract "service.sh"
 extract "action.sh"
