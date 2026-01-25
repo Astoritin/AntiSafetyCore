@@ -5,7 +5,7 @@ data_state=$(getprop "ro.crypto.state")
 
 CONFIG_DIR="/data/adb/anti_safetycore"
 PH_DIR="$CONFIG_DIR/placeholder"
-KEEP_RUNNING_MARK="$CONFIG_DIR/keep_running"
+MARK_KEEP_RUNNING="$CONFIG_DIR/keep_running"
 
 MODULE_PROP="$MODDIR/module.prop"
 MOD_INTRO="GET LOST, SafetyCore & KeyVerifier!"
@@ -222,7 +222,7 @@ while true; do
     anti_safetycore
     anti_safetycore_description_update
 
-    [ -f "$KEEP_RUNNING_MARK" ] || exit 0
+    [ -f "$MARK_KEEP_RUNNING" ] || exit 0
 
     checkout_count=$((checkout_count + 1))
     sleep 1800

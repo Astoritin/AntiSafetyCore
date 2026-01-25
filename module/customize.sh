@@ -80,8 +80,8 @@ ui_print "- Setting up $MOD_NAME"
 ui_print "- Version: $MOD_VER"
 [ -f "$MARK_KEEP_RUNNING" ] && mark_keep_running=true
 [ -f "$MARK_SYSTEMIZE" ] && mark_systemize=true
-rm -f "$MOD_PATH_OLD/update" > /dev/null 2>&1
 [ -d "$MOD_PATH_OLD" ] && touch "$MOD_PATH_OLD/remove"
+rm -f "$MOD_PATH_OLD/update" > /dev/null 2>&1
 rm -rf "$CONFIG_DIR_OLD" "$CONFIG_DIR" > /dev/null 2>&1
 init_dir "$PH_DIR"
 extract "module.prop"
@@ -91,10 +91,10 @@ extract "uninstall.sh"
 extract "$CLEANUP_SH"
 cat "$MODPATH/$CLEANUP_SH" > "$CLEANUP_PATH"
 chmod +x "$CLEANUP_PATH"
-extract "placeholder/SafetyCorePlaceHolder.apk" "$CONFIG_DIR"
-extract "placeholder/KeyVerifierPlaceHolder.apk" "$CONFIG_DIR"
+extract "placeholder/com.google.android.contactkeys/com.google.android.contactkeys.apk" "$CONFIG_DIR"
+extract "placeholder/com.google.android.safetycore/com.google.android.safetycore.apk" "$CONFIG_DIR"
 [ "$mark_keep_running" = true ] && touch "$MARK_KEEP_RUNNING"
-[ "$mark_systemize" = true ] && touch "$MARK_SYSTEMIZE"
+[ "$mark_systemize" = true ] && touch "$MARK_SYSTEMIZE" && touch "$MODPATH/skip_mount"
 ecol
 ecoe
 ecos "              NOTICE"
@@ -120,7 +120,7 @@ ecoe
 ecos "• Xposed modules (e.g. Core Patch)"
 ecos "• Some custom ROMs' built-in options"
 ecoe
-ecos "    REBOOT TO TAKE EFFECT    "
+ecos "        REBOOT TO TAKE EFFECT"
 ecoe
 ecol
 ui_print "- Setting permissions"
