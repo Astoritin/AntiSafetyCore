@@ -3,7 +3,6 @@ SKIPUNZIP=1
 
 CONFIG_DIR_OLD="/data/adb/antisafetycore"
 CONFIG_DIR="/data/adb/anti_safetycore"
-
 PH_DIR="$CONFIG_DIR/placeholder"
 
 MOD_UPDATE_PATH="$(dirname "$MODPATH")"
@@ -13,12 +12,15 @@ MOD_PATH_OLD="$MOD_PATH/antisafetycore"
 MOD_NAME="$(grep_prop name "$TMPDIR/module.prop")"
 MOD_VER="$(grep_prop version "$TMPDIR/module.prop") ($(grep_prop versionCode "$TMPDIR/module.prop"))"
 
-keep_running_mark=false
-KEEP_RUNNING_MARK="$CONFIG_DIR/keep_running"
+MARK_KEEP_RUNNING="$CONFIG_DIR/keep_running"
+MARK_SYSTEMIZE="$CONFIG_DIR/systemize"
 
 POST_D="/data/adb/post-fs-data.d/"
 CLEANUP_SH="cleanup_anti_safetycore.sh"
 CLEANUP_PATH="${POST_D}/${CLEANUP_SH}"
+
+mark_keep_running=false
+mark_systemize=false
 
 init_dir() {
 	[ $# -eq 0 ] && return 1
@@ -30,9 +32,7 @@ init_dir() {
 }
 
 ecos() { ui_print "  $1"; }
-
 ecoe() { ui_print " "; }
-
 ecol() {
 
     length=39
@@ -76,16 +76,14 @@ extract() {
 }
 
 extract "customize.sh" "$TMPDIR"
-
 ui_print "- Setting up $MOD_NAME"
 ui_print "- Version: $MOD_VER"
-[ -f "$KEEP_RUNNING_MARK" ] && keep_running_mark=true
-[ -d "$MOD_PATH_OLD" ] && rm -f "$MOD_PATH_OLD/update" && ui_print "- Removed update flag from old module id dir"
-[ -d "$MOD_PATH_OLD" ] && touch "$MOD_PATH_OLD/remove" && ui_print "- Set remove flag to old module id dir"
-[ -d "$CONFIG_DIR_OLD" ] && rm -rf "$CONFIG_DIR_OLD" && ui_print "- Removed old module id configuration dir"
-[ -d "$CONFIG_DIR" ] && rm -rf "$CONFIG_DIR" && ui_print "- Removed old configuration dir"
+[ -f "$MARK_KEEP_RUNNING" ] && mark_keep_running=true
+[ -f "$MARK_SYSTEMIZE" ] && mark_systemize=true
+rm -f "$MOD_PATH_OLD/update" > /dev/null 2>&1
+[ -d "$MOD_PATH_OLD" ] && touch "$MOD_PATH_OLD/remove"
+rm -rf "$CONFIG_DIR_OLD" "$CONFIG_DIR" > /dev/null 2>&1
 init_dir "$PH_DIR"
-[ "$keep_running_mark" = true ] && touch "$KEEP_RUNNING_MARK"
 extract "module.prop"
 extract "service.sh"
 extract "action.sh"
@@ -95,6 +93,8 @@ cat "$MODPATH/$CLEANUP_SH" > "$CLEANUP_PATH"
 chmod +x "$CLEANUP_PATH"
 extract "placeholder/SafetyCorePlaceHolder.apk" "$CONFIG_DIR"
 extract "placeholder/KeyVerifierPlaceHolder.apk" "$CONFIG_DIR"
+[ "$mark_keep_running" = true ] && touch "$MARK_KEEP_RUNNING"
+[ "$mark_systemize" = true ] && touch "$MARK_SYSTEMIZE"
 ecol
 ecoe
 ecos "              NOTICE"
