@@ -181,26 +181,6 @@ module_description_cleanup_schedule() {
 
 }
 
-anti_safetycore() {
-
-    SafetyCore="com.google.android.safetycore"
-    KeyVerifier="com.google.android.contactkeys"
-
-    PH_SafetyCore="$PH_DIR/SafetyCorePlaceHolder.apk"
-    PH_KeyVerifier="$PH_DIR/KeyVerifierPlaceHolder.apk"
-
-    if [ -f "$MARK_SYSTEMIZE" ] && [ -d "$SYSTEMIZE_DIR" ] && [ ! -e "$MODDIR/skip_mount" ]; then
-        mod_mode="✅Systemize apps"
-        checkout_system_apps "$PH_SafetyCore" "$SafetyCore" && replaced_sc=true
-        checkout_system_apps "$PH_KeyVerifier" "$KeyVerifier" && replaced_kv=true
-    else
-        mod_mode="✅User apps"
-        checkout_user_apps "$PH_SafetyCore" "$SafetyCore" && replaced_sc=true
-        checkout_user_apps "$PH_KeyVerifier" "$KeyVerifier" && replaced_kv=true
-    fi
-
-}
-
 anti_safetycore_description_update() {
 
     mod_state="✅Done."
@@ -231,6 +211,28 @@ anti_safetycore_description_update() {
 
 }
 
+anti_safetycore() {
+
+    SafetyCore="com.google.android.safetycore"
+    KeyVerifier="com.google.android.contactkeys"
+
+    PH_SafetyCore="$PH_DIR/SafetyCorePlaceHolder.apk"
+    PH_KeyVerifier="$PH_DIR/KeyVerifierPlaceHolder.apk"
+
+    if [ -f "$MARK_SYSTEMIZE" ] && [ -d "$SYSTEMIZE_DIR" ] && [ ! -e "$MODDIR/skip_mount" ]; then
+        mod_mode="✅Systemize apps"
+        checkout_system_apps "$PH_SafetyCore" "$SafetyCore" && replaced_sc=true
+        checkout_system_apps "$PH_KeyVerifier" "$KeyVerifier" && replaced_kv=true
+    else
+        mod_mode="✅User apps"
+        checkout_user_apps "$PH_SafetyCore" "$SafetyCore" && replaced_sc=true
+        checkout_user_apps "$PH_KeyVerifier" "$KeyVerifier" && replaced_kv=true
+    fi
+
+    anti_safetycore_description_update
+
+}
+
 while [ "$(getprop sys.boot_completed)" != "1" ]; do
     sleep 1
 done
@@ -241,9 +243,11 @@ checkout_count=0
 while true; do
 
     anti_safetycore
-    anti_safetycore_description_update
 
     [ -f "$MARK_KEEP_RUNNING" ] || exit 0
+    [ -f "$MARK_SYSTEMIZE" ] || exit 0
+    [ -d "$SYSTEMIZE_DIR" ] || exit 0
+    [ -e "$MODDIR/skip_mount" ] || exit 0
 
     checkout_count=$((checkout_count + 1))
     sleep 1800
