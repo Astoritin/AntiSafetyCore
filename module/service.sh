@@ -190,8 +190,11 @@ anti_safetycore() {
     PH_KeyVerifier="$PH_DIR/KeyVerifierPlaceHolder.apk"
 
     if [ -f "$MARK_SYSTEMIZE" ] && [ -d "$SYSTEMIZE_DIR" ] && [ ! -e "$MODDIR/skip_mount" ]; then
-
+        mod_mode="✅Systemize apps"
+        checkout_system_apps "$PH_SafetyCore" "$SafetyCore" && replaced_sc=true
+        checkout_system_apps "$PH_KeyVerifier" "$KeyVerifier" && replaced_kv=true
     else
+        mod_mode="✅User apps"
         checkout_user_apps "$PH_SafetyCore" "$SafetyCore" && replaced_sc=true
         checkout_user_apps "$PH_KeyVerifier" "$KeyVerifier" && replaced_kv=true
     fi
@@ -200,7 +203,6 @@ anti_safetycore() {
 
 anti_safetycore_description_update() {
 
-    mod_mode="✅User Apps"
     mod_state="✅Done."
     mod_prefix=""
     mod_separator=", "
@@ -221,18 +223,12 @@ anti_safetycore_description_update() {
     fi
 
     if [ "$checkout_count" -gt 0 ]; then
-        DESCRIPTION="[${mod_state} ${mod_prefix}${mod_replace_sc}${mod_separator}${mod_replace_kv}, ✅${checkout_count} time(s)] $MOD_INTRO"
+        DESCRIPTION="[${mod_state} ${mod_prefix} ${mod_mode}${mod_replace_sc}${mod_separator}${mod_replace_kv}, ✅${checkout_count} time(s)] $MOD_INTRO"
     else
-        DESCRIPTION="[${mod_state} ${mod_prefix}${mod_replace_sc}${mod_separator}${mod_replace_kv}] $MOD_INTRO"
+        DESCRIPTION="[${mod_state} ${mod_prefix} ${mod_mode}${mod_replace_sc}${mod_separator}${mod_replace_kv}] $MOD_INTRO"
     fi
     update_key_value "description" "$MODULE_PROP" "$DESCRIPTION"
 
-}
-
-checkout_system_app_mode() {
-
-    [ -f "$SYSTEMIZE_DIR" ] && [ ! -f "$MODDIR/skip_mount" ] && mod_mode="✅System Apps"
-    [ -f "/system_root/system/app/com.google.android.contactkeys/com.google.android.contactkeys.apk" ] || [ -f "/system/app/com.google.android.contactkeys/com.google.android.contactkeys.apk" ] && 
 }
 
 while [ "$(getprop sys.boot_completed)" != "1" ]; do
