@@ -2,6 +2,7 @@
 
 CONFIG_DIR="/data/adb/anti_safetycore"
 PH_DIR="$CONFIG_DIR/placeholder"
+
 MARK_SYSTEMIZE="$CONFIG_DIR/systemize"
 
 POST_D="/data/adb/post-fs-data.d/"

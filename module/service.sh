@@ -5,7 +5,11 @@ data_state=$(getprop "ro.crypto.state")
 
 CONFIG_DIR="/data/adb/anti_safetycore"
 PH_DIR="$CONFIG_DIR/placeholder"
+
 MARK_KEEP_RUNNING="$CONFIG_DIR/keep_running"
+MARK_SYSTEMIZE="$CONFIG_DIR/systemize"
+
+SYSTEMIZE_DIR="$MODDIR/system"
 
 MODULE_PROP="$MODDIR/module.prop"
 MOD_INTRO="GET LOST, SafetyCore & KeyVerifier!"
@@ -33,7 +37,7 @@ file_compare() {
 
 }
 
-fetch_package_path_from_pm() {
+pm_fetch_package_path() {
 
     package_name=$1
     output_pm=$(pm path "$package_name")
@@ -41,10 +45,41 @@ fetch_package_path_from_pm() {
     [ -z "$output_pm" ] && return 1
 
     package_path=$(echo "$output_pm" | cut -d':' -f2- | sed 's/^://' | head -n 1)
+    
+    [ -f "$package_path" ] || return 1
     echo "$package_path"
 
 }
 
+check_existed_app() {
+
+    apk_to_install=$1
+    apk_package_name=$2
+
+    if [ ! -f "$apk_to_install" ]; then
+        return 1
+    fi
+    if [ -z "$apk_package_name" ]; then
+        return 2
+    fi
+
+    existed_apk_path=$(pm_fetch_package_path "$apk_package_name")
+    if file_compare "$apk_to_install" "$existed_apk_path"; then
+        return 0
+    else
+        return 1
+    fi
+
+}
+
+force_replace() {
+
+    if [ "$FORCE_REPLACE" = true ]; then
+        uninstall_and_install "$apk_to_install" "$apk_package_name"
+        return $?
+    fi
+
+}
 
 check_screen_unlock() {
 
@@ -101,39 +136,13 @@ install_package() {
 
 }
 
-check_and_install_apk() {
+uninstall_and_install() {
 
     apk_to_install=$1
     apk_package_name=$2
 
     uninstall_package "$apk_package_name"
     install_package "$apk_to_install"
-
-}
-
-check_existed_app() {
-
-    apk_to_install=$1
-    apk_package_name=$2
-
-    if [ ! -f "$apk_to_install" ]; then
-        return 1
-    fi
-    if [ -z "$apk_package_name" ]; then
-        return 2
-    fi
-
-    if [ "$FORCE_REPLACE" = true ]; then
-        check_and_install_apk "$apk_to_install" "$apk_package_name"
-        return $?
-    fi
-
-    existed_apk_path=$(fetch_package_path_from_pm "$apk_package_name")
-    file_compare "$apk_to_install" "$existed_apk_path"
-    case "$?" in
-    0)  return 0;;
-    1|3)    check_and_install_apk "$apk_to_install" "$apk_package_name";;
-    esac
 
 }
 
@@ -183,11 +192,13 @@ anti_safetycore() {
 
 anti_safetycore_description_update() {
 
+    mod_mode="✅User Apps"
     mod_state="✅Done."
     mod_prefix=""
     mod_separator=", "
     mod_replace_sc="✅SafetyCore"
     mod_replace_kv="✅KeyVerifier"
+
 
     if [ "$replaced_sc" = "false" ] && [ "$replaced_kv" = "false" ]; then
         mod_state="❌No effect."
@@ -202,12 +213,18 @@ anti_safetycore_description_update() {
     fi
 
     if [ "$checkout_count" -gt 0 ]; then
-        DESCRIPTION="[${mod_state} ${mod_prefix}${mod_replace_sc}${mod_separator}${mod_replace_kv}, ⏰${checkout_count} time(s)] $MOD_INTRO"
+        DESCRIPTION="[${mod_state} ${mod_prefix}${mod_replace_sc}${mod_separator}${mod_replace_kv}, ✅${checkout_count} time(s)] $MOD_INTRO"
     else
         DESCRIPTION="[${mod_state} ${mod_prefix}${mod_replace_sc}${mod_separator}${mod_replace_kv}] $MOD_INTRO"
     fi
     update_key_value "description" "$MODULE_PROP" "$DESCRIPTION"
 
+}
+
+checkout_system_app_mode() {
+
+    [ -f "$SYSTEMIZE_DIR" ] && [ ! -f "$MODDIR/skip_mount" ] && mod_mode="✅System Apps"
+    [ -f "/system_root/system/app/com.google.android.contactkeys/com.google.android.contactkeys.apk" ] || [ -f "/system/app/com.google.android.contactkeys/com.google.android.contactkeys.apk" ] && 
 }
 
 while [ "$(getprop sys.boot_completed)" != "1" ]; do
