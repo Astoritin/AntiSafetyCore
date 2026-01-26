@@ -9,7 +9,7 @@ PH_DIR="$CONFIG_DIR/placeholder"
 MARK_KEEP_RUNNING="$CONFIG_DIR/keep_running"
 MARK_SYSTEMIZE="$CONFIG_DIR/systemize"
 
-SYSTEMIZE_DIR="$MODDIR/system"
+SYSTEMIZE_DIR="$MODDIR/system/app"
 
 MODULE_PROP="$MODDIR/module.prop"
 MOD_INTRO="GET LOST, SafetyCore & KeyVerifier!"
@@ -34,74 +34,6 @@ file_compare() {
     
     [ "$hash_file_a" = "$hash_file_b" ] && return 0
     [ "$hash_file_a" != "$hash_file_b" ] && return 1
-
-}
-
-pm_fetch_package_path() {
-
-    package_name=$1
-    output_pm=$(pm path "$package_name")
-
-    [ -z "$output_pm" ] && return 1
-
-    package_path=$(echo "$output_pm" | cut -d':' -f2- | sed 's/^://' | head -n 1)
-    
-    [ -f "$package_path" ] || return 1
-    echo "$package_path"
-
-}
-
-check_existed_app() {
-
-    apk_to_install=$1
-    apk_package_name=$2
-
-    if [ ! -f "$apk_to_install" ]; then
-        return 1
-    fi
-    if [ -z "$apk_package_name" ]; then
-        return 2
-    fi
-
-    existed_apk_path=$(pm_fetch_package_path "$apk_package_name")
-    if file_compare "$apk_to_install" "$existed_apk_path"; then
-        return 0
-    else
-        return 1
-    fi
-
-}
-
-force_replace() {
-
-    if [ "$FORCE_REPLACE" = true ]; then
-        uninstall_and_install "$apk_to_install" "$apk_package_name"
-        return $?
-    fi
-
-}
-
-check_screen_unlock() {
-
-    keyguard_state=$(dumpsys window policy 2>/dev/null)
-    if echo "$keyguard_state" | grep -A5 "KeyguardServiceDelegate" | grep -q "showing=false"; then
-        return 0
-    fi
-    if echo "$keyguard_state" | grep -q -E "mShowingLockscreen=false|mDreamingLockscreen=false"; then
-        return 0
-    fi
-
-    screen_focus=$(dumpsys window 2>/dev/null | grep -i mCurrentFocus)
-    case $screen_focus in
-    *keyguard*|*lockscreen*) return 1 ;;
-    esac
-
-    case $screen_focus in
-    *[Ll][Aa][Uu][Nn][Cc][Hh][Ee][Rr]*|*[Ss][Ee][Tt][Tt][Ii][Nn][Gg][Ss]*) return 0 ;;
-    *) return 1 ;;
-    esac
-
-    return 1
 
 }
 
@@ -146,6 +78,74 @@ uninstall_and_install() {
 
 }
 
+pm_fetch_package_path() {
+
+    package_name=$1
+    output_pm=$(pm path "$package_name")
+
+    [ -n "$output_pm" ] || return 1
+
+    package_path=$(echo "$output_pm" | cut -d':' -f2- | sed 's/^://' | head -n 1)
+    
+    [ -f "$package_path" ] || return 2
+    echo "$package_path"
+
+}
+
+checkout_user_apps() {
+
+    apk_to_install=$1
+    apk_package_name=$2
+
+    [ -f "$apk_to_install" ] || return 1
+    [ -n "$apk_package_name" ] || return 2
+
+    if [ "$MARK_ACTION_REPLACE" = true ]; then
+        uninstall_and_install "$apk_to_install" "$apk_package_name"
+        return $?
+    fi
+
+    existed_apk_path=$(pm_fetch_package_path "$apk_package_name")
+    if file_compare "$apk_to_install" "$existed_apk_path"; then
+        return 0
+    else
+        uninstall_and_install "$apk_to_install" "$apk_package_name"
+    fi
+
+}
+
+checkout_system_apps() {
+
+    apk_package_name=$1
+    if [ "$SYSTEMIZE_DIR/$apk_package_name" ]; then
+        if []
+    fi
+}
+
+check_screen_unlock() {
+
+    keyguard_state=$(dumpsys window policy 2>/dev/null)
+    if echo "$keyguard_state" | grep -A5 "KeyguardServiceDelegate" | grep -q "showing=false"; then
+        return 0
+    fi
+    if echo "$keyguard_state" | grep -q -E "mShowingLockscreen=false|mDreamingLockscreen=false"; then
+        return 0
+    fi
+
+    screen_focus=$(dumpsys window 2>/dev/null | grep -i mCurrentFocus)
+    case $screen_focus in
+    *keyguard*|*lockscreen*) return 1 ;;
+    esac
+
+    case $screen_focus in
+    *[Ll][Aa][Uu][Nn][Cc][Hh][Ee][Rr]*|*[Ss][Ee][Tt][Tt][Ii][Nn][Gg][Ss]*) return 0 ;;
+    *) return 1 ;;
+    esac
+
+    return 1
+
+}
+
 update_key_value() {
     key="$1"
     conf="$2"
@@ -185,8 +185,12 @@ anti_safetycore() {
     PH_SafetyCore="$PH_DIR/SafetyCorePlaceHolder.apk"
     PH_KeyVerifier="$PH_DIR/KeyVerifierPlaceHolder.apk"
 
-    check_existed_app "$PH_SafetyCore" "$SafetyCore" && replaced_sc=true
-    check_existed_app "$PH_KeyVerifier" "$KeyVerifier" && replaced_kv=true
+    if [ -f "$MARK_SYSTEMIZE" ] && [ -d "$SYSTEMIZE_DIR" ] && [ ! -e "$MODDIR/skip_mount" ]; then
+
+    else
+        checkout_user_apps "$PH_SafetyCore" "$SafetyCore" && replaced_sc=true
+        checkout_user_apps "$PH_KeyVerifier" "$KeyVerifier" && replaced_kv=true
+    fi
 
 }
 

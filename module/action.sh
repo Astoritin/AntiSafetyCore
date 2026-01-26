@@ -1,7 +1,7 @@
 #!/system/bin/sh
 MODDIR=${0%/*}
 
-FORCE_REPLACE=true
+MARK_ACTION_REPLACE=true
 
 ecol() {
 
