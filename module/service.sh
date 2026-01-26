@@ -117,9 +117,13 @@ checkout_user_apps() {
 checkout_system_apps() {
 
     apk_package_name=$1
-    if [ "$SYSTEMIZE_DIR/$apk_package_name" ]; then
-        if []
-    fi
+
+    [ -z "$apk_package_name" ] && return 1
+    [ -d "$SYSTEMIZE_DIR/$apk_package_name" ] || return 1
+
+    [ -d "/system/app/$apk_package_name" ] || return 2
+    return 0
+
 }
 
 check_screen_unlock() {
