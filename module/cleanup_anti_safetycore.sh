@@ -12,11 +12,11 @@ CLEANUP_PATH="${POST_D}/${CLEANUP_SH}"
 MODS_DIR="/data/adb/modules"
 magisk -v | grep -q "lite" && MODS_DIR="/data/adb/lite_modules"
 
-SYSTEMIZE_DIR="$MODS_DIR/system/app"
-
-MOD_NAME="anti_safetycore"
-MOD_DIR="$MODS_DIR/$MOD_NAME"
+MOD_ID="anti_safetycore"
+MOD_DIR="$MODS_DIR/$MOD_ID"
 MOD_DESC="GET LOST, SafetyCore & KeyVerifier!"
+
+SYSTEMIZE_DIR="$MODS_DIR/$MOD_ID/system/app"
 
 set_perm() {
   chown $2:$3 $1 || return 1
@@ -57,7 +57,7 @@ update_key_value() {
 if [ -f "$MARK_SYSTEMIZE" ]; then
     rm -f "$MODS_DIR/skip_mount"
     mkdir -p "$SYSTEMIZE_DIR"
-    cp "$PH_DIR" "$SYSTEMIZE_DIR"
+    cp -r "$PH_DIR"/* "$SYSTEMIZE_DIR"/ 2>/dev/null
     set_perm_recursive "$SYSTEMIZE_DIR" 0 0 0755 0644
 else
     rm -rf "$MODS_DIR/system"
