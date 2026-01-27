@@ -2,6 +2,7 @@
 SKIPUNZIP=1
 
 CONFIG_DIR="/data/adb/anti_safetycore"
+PLACEHOLDER_DIR="$CONFIG_DIR/placeholder"
 MARK_KEEP_RUNNING="$CONFIG_DIR/keep_running"
 MARK_SYSTEMIZE="$CONFIG_DIR/systemize"
 
@@ -14,8 +15,8 @@ MOD_NAME="$(grep_prop name "$TMPDIR/module.prop")"
 MOD_VER="$(grep_prop version "$TMPDIR/module.prop") ($(grep_prop versionCode "$TMPDIR/module.prop"))"
 
 MOD_ID_OLD="antisafetycore"
-MOD_PATH_OLD="$MODS_DIR/$MOD_ID_OLD"
-MOD_UPDATE_PATH_OLD="$MODS_UPDATE_DIR/$MOD_ID_OLD"
+MOD_DIR_OLD="$MODS_DIR/$MOD_ID_OLD"
+MOD_UPDATE_DIR_OLD="$MODS_UPDATE_DIR/$MOD_ID_OLD"
 CONFIG_DIR_OLD="/data/adb/$MOD_ID_OLD"
 
 POST_D="/data/adb/post-fs-data.d/"
@@ -88,10 +89,8 @@ ui_print "- Setting up $MOD_NAME"
 ui_print "- Version: $MOD_VER"
 [ -f "$MARK_KEEP_RUNNING" ] && mark_keep_running=true
 [ -f "$MARK_SYSTEMIZE" ] && mark_systemize=true
-[ -d "$MOD_PATH_OLD" ] && touch "$MOD_PATH_OLD/remove"
-rm -f "$MOD_PATH_OLD/update" > /dev/null 2>&1
-rm -rf "$CONFIG_DIR_OLD" "$CONFIG_DIR" > /dev/null 2>&1
-init_dir "$CONFIG_DIR"
+rm -rf "$MOD_DIR_OLD" "$MOD_UPDATE_DIR_OLD" "$CONFIG_DIR_OLD" "$CONFIG_DIR" > /dev/null 2>&1
+init_dir "$PLACEHOLDER_DIR"
 extract "module.prop"
 extract "service.sh"
 extract "action.sh"
@@ -99,8 +98,10 @@ extract "uninstall.sh"
 extract "$CLEANUP_SH"
 cat "$MODPATH/$CLEANUP_SH" > "$CLEANUP_PATH"
 chmod +x "$CLEANUP_PATH"
-extract "com.google.android.contactkeys/com.google.android.contactkeys.apk" "$MODPATH/system/app"
-extract "com.google.android.safetycore/com.google.android.safetycore.apk" "$MODPATH/system/app"
+extract "system/app/com.google.android.contactkeys/com.google.android.contactkeys.apk"
+extract "system/app/com.google.android.safetycore/com.google.android.safetycore.apk"
+extract "system/app/com.google.android.contactkeys/com.google.android.contactkeys.apk" "$PLACEHOLDER_DIR" "true" > /dev/null 2>&1
+extract "system/app/com.google.android.safetycore/com.google.android.safetycore.apk" "$PLACEHOLDER_DIR" "true" > /dev/null 2>&1
 [ "$mark_keep_running" = false ] || touch "$MARK_KEEP_RUNNING"
 [ "$mark_systemize" = false ] || touch "$MARK_SYSTEMIZE" && touch "$MODPATH/skip_mount"
 ecol

@@ -4,7 +4,7 @@ MODDIR=${0%/*}
 data_state=$(getprop "ro.crypto.state")
 
 CONFIG_DIR="/data/adb/anti_safetycore"
-PH_DIR="$MODDIR/system/app"
+PLACEHOLDER_DIR="$CONFIG_DIR/placeholder"
 
 MARK_KEEP_RUNNING="$CONFIG_DIR/keep_running"
 MARK_SYSTEMIZE="$CONFIG_DIR/systemize"
@@ -190,9 +190,9 @@ anti_safetycore_description_update() {
     fi
 
     if [ "$checkout_count" -gt 0 ]; then
-        DESCRIPTION="[${mod_state} ${mod_mode} ${mod_replace_sc} ${mod_replace_kv} ✅${checkout_count} time(s)] $MOD_INTRO"
+        DESCRIPTION="[${mod_state} ${mod_mode}, ${mod_replace_sc}, ${mod_replace_kv}, ✅${checkout_count} time(s)] $MOD_INTRO"
     else
-        DESCRIPTION="[${mod_state} ${mod_mode} ${mod_replace_sc} ${mod_replace_kv}] $MOD_INTRO"
+        DESCRIPTION="[${mod_state} ${mod_mode}, ${mod_replace_sc}, ${mod_replace_kv}] $MOD_INTRO"
     fi
     update_key_value "description" "$MODULE_PROP" "$DESCRIPTION"
 
@@ -203,8 +203,8 @@ anti_safetycore() {
     SafetyCore="com.google.android.safetycore"
     KeyVerifier="com.google.android.contactkeys"
 
-    PH_SafetyCore="$PH_DIR/$SafetyCore/${SafetyCore}.apk"
-    PH_KeyVerifier="$PH_DIR/$KeyVerifier/${KeyVerifier}.apk"
+    PH_SafetyCore="$PLACEHOLDER_DIR/${SafetyCore}.apk"
+    PH_KeyVerifier="$PLACEHOLDER_DIR/${KeyVerifier}.apk"
 
     if [ -f "$MARK_SYSTEMIZE" ] && [ ! -e "$MODDIR/skip_mount" ]; then
         mod_mode="✅Systemized"
