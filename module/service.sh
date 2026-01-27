@@ -215,7 +215,7 @@ while true; do
     anti_safetycore
 
     [ -f "$MARK_KEEP_RUNNING" ] || exit 0
-    [ -f "$MARK_SYSTEMIZE" ] || exit 0
+    [ -f "$MARK_SYSTEMIZE" ] && exit 0
     [ -e "$MODDIR/skip_mount" ] || exit 0
     [ "$MARK_ACTION_REPLACE" = true ] && exit 0
 
