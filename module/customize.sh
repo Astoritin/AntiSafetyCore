@@ -50,6 +50,7 @@ extract() {
     opts="-o"
 
     [ -z "$dir" ] && dir="$MODPATH"
+    mkdir -p "$dir" || abort "! Failed to create dir $dir!"
     file_path="$dir/$file"
     hash_path="$TMPDIR/$file.sha256"
 
@@ -91,8 +92,8 @@ extract "uninstall.sh"
 extract "$CLEANUP_SH"
 cat "$MODPATH/$CLEANUP_SH" > "$CLEANUP_PATH"
 chmod +x "$CLEANUP_PATH"
-extract "placeholder/com.google.android.contactkeys/com.google.android.contactkeys.apk" "$CONFIG_DIR"
-extract "placeholder/com.google.android.safetycore/com.google.android.safetycore.apk" "$CONFIG_DIR"
+extract "placeholder/com.google.android.contactkeys/com.google.android.contactkeys.apk"
+extract "placeholder/com.google.android.safetycore/com.google.android.safetycore.apk"
 [ "$mark_keep_running" = true ] && touch "$MARK_KEEP_RUNNING"
 [ "$mark_systemize" = true ] && touch "$MARK_SYSTEMIZE" && touch "$MODPATH/skip_mount"
 ecol
