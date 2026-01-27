@@ -184,16 +184,11 @@ module_description_cleanup_schedule() {
 anti_safetycore_description_update() {
 
     mod_state="✅Done."
-    mod_prefix=""
-    mod_separator=", "
     mod_replace_sc="✅SafetyCore"
     mod_replace_kv="✅KeyVerifier"
 
-
     if [ "$replaced_sc" = "false" ] && [ "$replaced_kv" = "false" ]; then
-        mod_state="❌No effect."
-        mod_prefix="Something went wrong!"
-        mod_separator=""
+        mod_state="❌No effect. Something went wrong!"
     elif [ "$replaced_sc" = "true" ] && [ "$replaced_kv" = "true" ]; then
         mod_state="✅All done."
     elif [ "$replaced_sc" = "true" ]; then
@@ -203,9 +198,9 @@ anti_safetycore_description_update() {
     fi
 
     if [ "$checkout_count" -gt 0 ]; then
-        DESCRIPTION="[${mod_state} ${mod_prefix} ${mod_mode}${mod_replace_sc}${mod_separator}${mod_replace_kv}, ✅${checkout_count} time(s)] $MOD_INTRO"
+        DESCRIPTION="[${mod_state} ${mod_mode} ${mod_replace_sc} ${mod_replace_kv} ✅${checkout_count} time(s)] $MOD_INTRO"
     else
-        DESCRIPTION="[${mod_state} ${mod_prefix} ${mod_mode}${mod_replace_sc}${mod_separator}${mod_replace_kv}] $MOD_INTRO"
+        DESCRIPTION="[${mod_state} ${mod_mode} ${mod_replace_sc} ${mod_replace_kv}] $MOD_INTRO"
     fi
     update_key_value "description" "$MODULE_PROP" "$DESCRIPTION"
 
