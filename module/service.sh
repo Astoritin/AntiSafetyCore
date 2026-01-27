@@ -176,8 +176,6 @@ anti_safetycore() {
 
     if [ -f "$MARK_SYSTEMIZE" ] && [ ! -e "$MODDIR/skip_mount" ]; then
         mod_mode="✅Systemized"
-        uninstall_app "com.google.android.safetycore"
-        uninstall_app "com.google.android.contactkeys"
     fi
 
     checkout_apps "com.google.android.safetycore" "$PH_SafetyCore" && replaced_sc=true
