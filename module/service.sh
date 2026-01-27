@@ -243,6 +243,7 @@ while true; do
     [ -f "$MARK_SYSTEMIZE" ] || exit 0
     [ -d "$SYSTEMIZE_DIR" ] || exit 0
     [ -e "$MODDIR/skip_mount" ] || exit 0
+    [ "$MARK_ACTION_REPLACE" = true ] && exit 0
 
     checkout_count=$((checkout_count + 1))
     sleep 1800
