@@ -66,10 +66,7 @@ extract() {
         hash_path="$TMPDIR/$(basename "$file").sha256"
     fi
 
-    file_dir="$(dirname $file_path)"
-    mkdir -p "$file_dir" || abort "! Failed to create dir $dir!"
-
-    unzip $opts "$ZIPFILE" "$file" -d "$file_dir" >&2
+    unzip $opts "$ZIPFILE" "$file" -d "$dir" >&2
     [ -f "$file_path" ] || abort "! $file does NOT exist"
 
     unzip $opts "$ZIPFILE" "${file}.sha256" -d "$TMPDIR" >&2
