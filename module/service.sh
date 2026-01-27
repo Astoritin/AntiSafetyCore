@@ -9,8 +9,6 @@ PH_DIR="$MODDIR/system/app"
 MARK_KEEP_RUNNING="$CONFIG_DIR/keep_running"
 MARK_SYSTEMIZE="$CONFIG_DIR/systemize"
 
-SYSTEMIZE_DIR="$MODDIR/system/app"
-
 MODULE_PROP="$MODDIR/module.prop"
 MOD_INTRO="GET LOST, SafetyCore & KeyVerifier!"
 LOCAL_TMP="/data/local/tmp"
@@ -95,15 +93,14 @@ pm_fetch_package_path() {
 checkout_apps() {
 
     apk_mode=$1
-    apk_to_install=$2
-    apk_package_name=$3
+    apk_package_name=$2
+    apk_to_install=$3
 
     if [ "$apk_mode" = "user" ]; then
         [ -f "$apk_to_install" ] || return 1
         [ -n "$apk_package_name" ] || return 2
     elif [ "$apk_mode" = "system" ]; then
         [ -z "$apk_package_name" ] && return 1
-        [ -d "$SYSTEMIZE_DIR/$apk_package_name" ] || return 1
         [ -d "/system/app/$apk_package_name" ] || return 2
     fi
 
@@ -236,7 +233,6 @@ while true; do
 
     [ -f "$MARK_KEEP_RUNNING" ] || exit 0
     [ -f "$MARK_SYSTEMIZE" ] || exit 0
-    [ -d "$SYSTEMIZE_DIR" ] || exit 0
     [ -e "$MODDIR/skip_mount" ] || exit 0
     [ "$MARK_ACTION_REPLACE" = true ] && exit 0
 
