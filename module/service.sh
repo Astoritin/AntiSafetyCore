@@ -35,7 +35,7 @@ file_compare() {
 
 }
 
-uninstall_package() {
+uninstall_app() {
 
     package_name="$1"
 
@@ -49,34 +49,24 @@ uninstall_package() {
 
 }
 
-install_package() {
+install_apk() {
 
-    package_path="$1"
+    apk_path="$1"
 
-    cp "$package_path" "$LOCAL_TMP"
+    cp "$apk_path" "/data/local/tmp"
 
-    package_basename=$(basename "$package_path")
-    package_tmp="$LOCAL_TMP/$package_basename"
+    package_basename=$(basename "$apk_path")
+    apk_path="/data/local/tmp/$package_basename"
 
-    pm install -i "com.android.vending" "$package_tmp"
+    pm install -i "com.android.vending" "$apk_path"
     result_install_package=$?
 
-    rm -f "$package_tmp"
+    rm -f "$apk_path"
     return "$result_install_package"
 
 }
 
-uninstall_and_install() {
-
-    apk_package_name=$1
-    apk_to_install=$2
-
-    uninstall_package "$apk_package_name"
-    install_package "$apk_to_install"
-
-}
-
-pm_fetch_package_path() {
+fetch_app_path() {
 
     package_name=$1
     output_pm=$(pm path "$package_name")
@@ -90,30 +80,23 @@ pm_fetch_package_path() {
 
 }
 
-checkout_apps() {
+checkout_app() {
 
-    apk_mode=$1
-    apk_package_name=$2
-    apk_to_install=$3
-
-    if [ "$apk_mode" = "user" ]; then
-        [ -f "$apk_to_install" ] || return 1
-        [ -n "$apk_package_name" ] || return 2
-    elif [ "$apk_mode" = "system" ]; then
-        [ -z "$apk_package_name" ] && return 1
-        [ -d "/system/app/$apk_package_name" ] || return 2
-    fi
+    package_name=$1
+    apk_to_install=$2
 
     if [ "$MARK_ACTION_REPLACE" = true ]; then
-        uninstall_and_install "$apk_to_install" "$apk_package_name"
-        return $?
+        uninstall_app "$package_name"
+        install_apk "$apk_to_install"
+        return
     fi
 
-    existed_apk_path=$(pm_fetch_package_path "$apk_package_name")
+    existed_apk_path=$(fetch_app_path "$package_name")
     if file_compare "$apk_to_install" "$existed_apk_path"; then
         return 0
     else
-        uninstall_and_install "$apk_to_install" "$apk_package_name"
+        uninstall_app "$package_name"
+        install_apk "$apk_to_install"
     fi
 
 }
@@ -173,7 +156,7 @@ module_description_cleanup_schedule() {
 
 }
 
-anti_safetycore_description_update() {
+module_description_update() {
 
     mod_state="✅Done."
     mod_replace_sc="✅SafetyCore"
@@ -190,9 +173,9 @@ anti_safetycore_description_update() {
     fi
 
     if [ "$checkout_count" -gt 0 ]; then
-        DESCRIPTION="[${mod_state} ${mod_mode}, ${mod_replace_sc}, ${mod_replace_kv}, ✅${checkout_count} time(s)] $MOD_INTRO"
+        DESCRIPTION="[${mod_state} ${mod_mode}: ${mod_replace_sc} ${mod_replace_kv}, ✅${checkout_count} time(s)] $MOD_INTRO"
     else
-        DESCRIPTION="[${mod_state} ${mod_mode}, ${mod_replace_sc}, ${mod_replace_kv}] $MOD_INTRO"
+        DESCRIPTION="[${mod_state} ${mod_mode}: ${mod_replace_sc} ${mod_replace_kv}] $MOD_INTRO"
     fi
     update_key_value "description" "$MODULE_PROP" "$DESCRIPTION"
 
@@ -211,7 +194,7 @@ anti_safetycore() {
         checkout_apps "system" "$SafetyCore" "$PH_SafetyCore" && replaced_sc=true
         checkout_apps "system" "$KeyVerifier" "$PH_KeyVerifier" && replaced_kv=true
     else
-        mod_mode="✅Installed"
+        mod_mode="✅Normal"
         checkout_apps "user" "$SafetyCore" "$PH_SafetyCore" && replaced_sc=true
         checkout_apps "user" "$KeyVerifier" "$PH_KeyVerifier" && replaced_kv=true
     fi
