@@ -1,19 +1,22 @@
 #!/system/bin/sh
 SKIPUNZIP=1
 
-CONFIG_DIR_OLD="/data/adb/antisafetycore"
 CONFIG_DIR="/data/adb/anti_safetycore"
-PH_DIR="$CONFIG_DIR/placeholder"
+MARK_KEEP_RUNNING="$CONFIG_DIR/keep_running"
+MARK_SYSTEMIZE="$CONFIG_DIR/systemize"
 
-MOD_UPDATE_PATH="$(dirname "$MODPATH")"
-MOD_PATH="${MOD_UPDATE_PATH%_update}"
-MOD_PATH_OLD="$MOD_PATH/antisafetycore"
+MODS_DIR="/data/adb/modules"
+MODS_UPDATE_DIR="/data/adb/modules_update"
+magisk -v | grep -q "lite" && { MODS_DIR="/data/adb/lite_modules"; MODS_UPDATE_DIR="/data/adb/lite_modules_update"; }
 
+MOD_ID="$(grep_prop id "$TMPDIR/module.prop")"
 MOD_NAME="$(grep_prop name "$TMPDIR/module.prop")"
 MOD_VER="$(grep_prop version "$TMPDIR/module.prop") ($(grep_prop versionCode "$TMPDIR/module.prop"))"
 
-MARK_KEEP_RUNNING="$CONFIG_DIR/keep_running"
-MARK_SYSTEMIZE="$CONFIG_DIR/systemize"
+MOD_ID_OLD="antisafetycore"
+MOD_PATH_OLD="$MODS_DIR/$MOD_ID_OLD"
+MOD_UPDATE_PATH_OLD="$MODS_UPDATE_DIR/$MOD_ID_OLD"
+CONFIG_DIR_OLD="/data/adb/$MOD_ID_OLD"
 
 POST_D="/data/adb/post-fs-data.d/"
 CLEANUP_SH="cleanup_anti_safetycore.sh"
@@ -50,7 +53,7 @@ extract() {
     opts="-o"
 
     [ -z "$dir" ] && dir="$MODPATH"
-    mkdir -p "$dir" || abort "! Failed to create dir $dir!"
+
     file_path="$dir/$file"
     hash_path="$TMPDIR/$file.sha256"
 
@@ -59,6 +62,9 @@ extract() {
         file_path="$dir/$(basename "$file")"
         hash_path="$TMPDIR/$(basename "$file").sha256"
     fi
+
+    file_dir="$(dirname $file_path)"
+    mkdir -p "$file_dir" || abort "! Failed to create dir $dir!"
 
     unzip $opts "$ZIPFILE" "$file" -d "$dir" >&2
     [ -f "$file_path" ] || abort "! $file does NOT exist"
@@ -84,7 +90,7 @@ ui_print "- Version: $MOD_VER"
 [ -d "$MOD_PATH_OLD" ] && touch "$MOD_PATH_OLD/remove"
 rm -f "$MOD_PATH_OLD/update" > /dev/null 2>&1
 rm -rf "$CONFIG_DIR_OLD" "$CONFIG_DIR" > /dev/null 2>&1
-init_dir "$PH_DIR"
+init_dir "$CONFIG_DIR"
 extract "module.prop"
 extract "service.sh"
 extract "action.sh"
@@ -92,10 +98,10 @@ extract "uninstall.sh"
 extract "$CLEANUP_SH"
 cat "$MODPATH/$CLEANUP_SH" > "$CLEANUP_PATH"
 chmod +x "$CLEANUP_PATH"
-extract "placeholder/com.google.android.contactkeys/com.google.android.contactkeys.apk"
-extract "placeholder/com.google.android.safetycore/com.google.android.safetycore.apk"
-[ "$mark_keep_running" = true ] && touch "$MARK_KEEP_RUNNING"
-[ "$mark_systemize" = true ] && touch "$MARK_SYSTEMIZE" && touch "$MODPATH/skip_mount"
+extract "placeholder/com.google.android.contactkeys/com.google.android.contactkeys.apk" "$MODPATH/system"
+extract "placeholder/com.google.android.safetycore/com.google.android.safetycore.apk" "$MODPATH/system"
+[ "$mark_keep_running" = false ] || touch "$MARK_KEEP_RUNNING"
+[ "$mark_systemize" = false ] || touch "$MARK_SYSTEMIZE" && touch "$MODPATH/skip_mount"
 ecol
 ecoe
 ecos "              NOTICE"
