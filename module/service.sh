@@ -66,6 +66,16 @@ install_apk() {
 
 }
 
+let_us_do_it() {
+
+    package_name=$1
+    apk_to_install=$2
+
+    uninstall_app "$package_name"
+    install_apk "$apk_to_install"
+
+}
+
 fetch_app_path() {
 
     package_name=$1
@@ -86,8 +96,7 @@ checkout_app() {
     apk_to_install=$2
 
     if [ "$MARK_ACTION_REPLACE" = true ]; then
-        uninstall_app "$package_name"
-        install_apk "$apk_to_install"
+        let_us_do_it "$package_name" "$apk_to_install"
         return
     fi
 
@@ -95,8 +104,7 @@ checkout_app() {
     if file_compare "$apk_to_install" "$existed_apk_path"; then
         return 0
     else
-        uninstall_app "$package_name"
-        install_apk "$apk_to_install"
+        let_us_do_it "$package_name" "$apk_to_install"
     fi
 
 }
@@ -156,14 +164,29 @@ module_description_cleanup_schedule() {
 
 }
 
-module_description_update() {
+anti_safetycore() {
 
+    mod_mode="✅User"
     mod_state="✅Done."
     mod_replace_sc="✅SafetyCore"
     mod_replace_kv="✅KeyVerifier"
 
+    PH_SafetyCore="$PLACEHOLDER_DIR/com.google.android.safetycore.apk"
+    PH_KeyVerifier="$PLACEHOLDER_DIR/com.google.android.contactkeys.apk"
+
+    if [ -f "$MARK_SYSTEMIZE" ] && [ ! -e "$MODDIR/skip_mount" ]; then
+        mod_mode="✅Systemized"
+        uninstall_app "com.google.android.safetycore"
+        uninstall_app "com.google.android.contactkeys"
+    fi
+
+    checkout_apps "com.google.android.safetycore" "$PH_SafetyCore" && replaced_sc=true
+    checkout_apps "com.google.android.contactkeys" "$PH_KeyVerifier" && replaced_kv=true
+
     if [ "$replaced_sc" = "false" ] && [ "$replaced_kv" = "false" ]; then
         mod_state="❌No effect. Something went wrong!"
+        mod_replace_kv=""
+        mod_replace_sc=""
     elif [ "$replaced_sc" = "true" ] && [ "$replaced_kv" = "true" ]; then
         mod_state="✅All done."
     elif [ "$replaced_sc" = "true" ]; then
@@ -177,29 +200,8 @@ module_description_update() {
     else
         DESCRIPTION="[${mod_state} ${mod_mode}: ${mod_replace_sc} ${mod_replace_kv}] $MOD_INTRO"
     fi
+
     update_key_value "description" "$MODULE_PROP" "$DESCRIPTION"
-
-}
-
-anti_safetycore() {
-
-    SafetyCore="com.google.android.safetycore"
-    KeyVerifier="com.google.android.contactkeys"
-
-    PH_SafetyCore="$PLACEHOLDER_DIR/${SafetyCore}.apk"
-    PH_KeyVerifier="$PLACEHOLDER_DIR/${KeyVerifier}.apk"
-
-    if [ -f "$MARK_SYSTEMIZE" ] && [ ! -e "$MODDIR/skip_mount" ]; then
-        mod_mode="✅Systemized"
-        checkout_apps "system" "$SafetyCore" "$PH_SafetyCore" && replaced_sc=true
-        checkout_apps "system" "$KeyVerifier" "$PH_KeyVerifier" && replaced_kv=true
-    else
-        mod_mode="✅Normal"
-        checkout_apps "user" "$SafetyCore" "$PH_SafetyCore" && replaced_sc=true
-        checkout_apps "user" "$KeyVerifier" "$PH_KeyVerifier" && replaced_kv=true
-    fi
-
-    anti_safetycore_description_update
 
 }
 
