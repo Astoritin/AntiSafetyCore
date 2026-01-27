@@ -70,8 +70,8 @@ install_package() {
 
 uninstall_and_install() {
 
-    apk_to_install=$1
-    apk_package_name=$2
+    apk_package_name=$1
+    apk_to_install=$2
 
     uninstall_package "$apk_package_name"
     install_package "$apk_to_install"
@@ -92,13 +92,20 @@ pm_fetch_package_path() {
 
 }
 
-checkout_user_apps() {
+checkout_apps() {
 
-    apk_to_install=$1
-    apk_package_name=$2
+    apk_mode=$1
+    apk_to_install=$2
+    apk_package_name=$3
 
-    [ -f "$apk_to_install" ] || return 1
-    [ -n "$apk_package_name" ] || return 2
+    if [ "$apk_mode" = "user" ]; then
+        [ -f "$apk_to_install" ] || return 1
+        [ -n "$apk_package_name" ] || return 2
+    elif [ "$apk_mode" = "system" ]; then
+        [ -z "$apk_package_name" ] && return 1
+        [ -d "$SYSTEMIZE_DIR/$apk_package_name" ] || return 1
+        [ -d "/system/app/$apk_package_name" ] || return 2
+    fi
 
     if [ "$MARK_ACTION_REPLACE" = true ]; then
         uninstall_and_install "$apk_to_install" "$apk_package_name"
@@ -111,18 +118,6 @@ checkout_user_apps() {
     else
         uninstall_and_install "$apk_to_install" "$apk_package_name"
     fi
-
-}
-
-checkout_system_apps() {
-
-    apk_package_name=$1
-
-    [ -z "$apk_package_name" ] && return 1
-    [ -d "$SYSTEMIZE_DIR/$apk_package_name" ] || return 1
-
-    [ -d "/system/app/$apk_package_name" ] || return 2
-    return 0
 
 }
 
@@ -214,14 +209,14 @@ anti_safetycore() {
     PH_SafetyCore="$PH_DIR/$SafetyCore/${SafetyCore}.apk"
     PH_KeyVerifier="$PH_DIR/$KeyVerifier/${KeyVerifier}.apk"
 
-    if [ -f "$MARK_SYSTEMIZE" ] && [ -d "$SYSTEMIZE_DIR" ] && [ ! -e "$MODDIR/skip_mount" ]; then
-        mod_mode="✅Systemize apps"
-        checkout_system_apps "$PH_SafetyCore" "$SafetyCore" && replaced_sc=true
-        checkout_system_apps "$PH_KeyVerifier" "$KeyVerifier" && replaced_kv=true
+    if [ -f "$MARK_SYSTEMIZE" ] && [ ! -e "$MODDIR/skip_mount" ]; then
+        mod_mode="✅Systemized"
+        checkout_apps "system" "$SafetyCore" "$PH_SafetyCore" && replaced_sc=true
+        checkout_apps "system" "$KeyVerifier" "$PH_KeyVerifier" && replaced_kv=true
     else
-        mod_mode="✅User apps"
-        checkout_user_apps "$PH_SafetyCore" "$SafetyCore" && replaced_sc=true
-        checkout_user_apps "$PH_KeyVerifier" "$KeyVerifier" && replaced_kv=true
+        mod_mode="✅Installed"
+        checkout_apps "user" "$SafetyCore" "$PH_SafetyCore" && replaced_sc=true
+        checkout_apps "user" "$KeyVerifier" "$PH_KeyVerifier" && replaced_kv=true
     fi
 
     anti_safetycore_description_update
