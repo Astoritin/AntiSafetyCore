@@ -50,12 +50,10 @@ extract "com.google.android.contactkeys/com.google.android.contactkeys.apk" "$MO
 extract "com.google.android.safetycore/com.google.android.safetycore.apk" "$MODPATH/system/app"
 
 extract() {
-    file=$1
-    dir=$2
-    junk=${3:-false}
+    file="$1"
+    dir="${2:-$MODPATH}"
+    junk="${3:-false}"
     opts="-o"
-
-    [ -z "$dir" ] && dir="$MODPATH"
 
     file_path="$dir/$file"  
     hash_path="$TMPDIR/$file.sha256"

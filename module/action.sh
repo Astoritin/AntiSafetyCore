@@ -14,7 +14,7 @@ ecol() {
 }
 
 CONFIG_DIR="/data/adb/anti_safetycore"
-PH_DIR="$CONFIG_DIR/placeholder"
+PH_DIR="$MODDIR/system/app"
 
 wait_timeout=3
 

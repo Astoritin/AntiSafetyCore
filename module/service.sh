@@ -4,7 +4,7 @@ MODDIR=${0%/*}
 data_state=$(getprop "ro.crypto.state")
 
 CONFIG_DIR="/data/adb/anti_safetycore"
-PH_DIR="$CONFIG_DIR/placeholder"
+PH_DIR="$MODDIR/system/app"
 
 MARK_KEEP_RUNNING="$CONFIG_DIR/keep_running"
 MARK_SYSTEMIZE="$CONFIG_DIR/systemize"
@@ -211,8 +211,8 @@ anti_safetycore() {
     SafetyCore="com.google.android.safetycore"
     KeyVerifier="com.google.android.contactkeys"
 
-    PH_SafetyCore="$PH_DIR/SafetyCorePlaceHolder.apk"
-    PH_KeyVerifier="$PH_DIR/KeyVerifierPlaceHolder.apk"
+    PH_SafetyCore="$PH_DIR/$SafetyCore/${SafetyCore}.apk"
+    PH_KeyVerifier="$PH_DIR/$KeyVerifier/${KeyVerifier}.apk"
 
     if [ -f "$MARK_SYSTEMIZE" ] && [ -d "$SYSTEMIZE_DIR" ] && [ ! -e "$MODDIR/skip_mount" ]; then
         mod_mode="✅Systemize apps"
