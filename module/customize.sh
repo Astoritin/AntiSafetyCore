@@ -46,6 +46,9 @@ ecol() {
 
 }
 
+extract "com.google.android.contactkeys/com.google.android.contactkeys.apk" "$MODPATH/system/app"
+extract "com.google.android.safetycore/com.google.android.safetycore.apk" "$MODPATH/system/app"
+
 extract() {
     file=$1
     dir=$2
@@ -54,7 +57,7 @@ extract() {
 
     [ -z "$dir" ] && dir="$MODPATH"
 
-    file_path="$dir/$file"
+    file_path="$dir/$file"  
     hash_path="$TMPDIR/$file.sha256"
 
     if [ "$junk" = true ]; then
@@ -66,7 +69,7 @@ extract() {
     file_dir="$(dirname $file_path)"
     mkdir -p "$file_dir" || abort "! Failed to create dir $dir!"
 
-    unzip $opts "$ZIPFILE" "$file" -d "$dir" >&2
+    unzip $opts "$ZIPFILE" "$file" -d "$file_dir" >&2
     [ -f "$file_path" ] || abort "! $file does NOT exist"
 
     unzip $opts "$ZIPFILE" "${file}.sha256" -d "$TMPDIR" >&2
@@ -98,8 +101,8 @@ extract "uninstall.sh"
 extract "$CLEANUP_SH"
 cat "$MODPATH/$CLEANUP_SH" > "$CLEANUP_PATH"
 chmod +x "$CLEANUP_PATH"
-extract "placeholder/com.google.android.contactkeys/com.google.android.contactkeys.apk" "$MODPATH/system"
-extract "placeholder/com.google.android.safetycore/com.google.android.safetycore.apk" "$MODPATH/system"
+extract "com.google.android.contactkeys/com.google.android.contactkeys.apk" "$MODPATH/system/app"
+extract "com.google.android.safetycore/com.google.android.safetycore.apk" "$MODPATH/system/app"
 [ "$mark_keep_running" = false ] || touch "$MARK_KEEP_RUNNING"
 [ "$mark_systemize" = false ] || touch "$MARK_SYSTEMIZE" && touch "$MODPATH/skip_mount"
 ecol
