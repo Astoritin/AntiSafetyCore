@@ -16,25 +16,6 @@ MOD_ID="anti_safetycore"
 MOD_DIR="$MODS_DIR/$MOD_ID"
 MOD_DESC="GET LOST, SafetyCore & KeyVerifier!"
 
-SYSTEMIZE_DIR="$MODS_DIR/$MOD_ID/system/app"
-
-set_perm() {
-  chown $2:$3 $1 || return 1
-  chmod $4 $1 || return 1
-  CON=$5
-  [ -z $CON ] && CON=u:object_r:system_file:s0
-  chcon $CON $1 || return 1
-}
-
-set_perm_recursive() {
-  find $1 -type d 2>/dev/null | while read dir; do
-    set_perm $dir $2 $3 $4 $6
-  done
-  find $1 -type f -o -type l 2>/dev/null | while read file; do
-    set_perm $file $2 $3 $5 $6
-  done
-}
-
 update_key_value() {
     key="$1"
     conf="$2"
@@ -55,12 +36,9 @@ update_key_value() {
 [ -f "$MOD_DIR/disable" ] && update_key_value "description" "$MOD_DIR/module.prop" "$MOD_DESC"
 
 if [ -f "$MARK_SYSTEMIZE" ]; then
-    rm -f "$MODS_DIR/skip_mount"
-    mkdir -p "$SYSTEMIZE_DIR"
-    cp -r "$PH_DIR"/* "$SYSTEMIZE_DIR"/ 2>/dev/null
-    set_perm_recursive "$SYSTEMIZE_DIR" 0 0 0755 0644
+    rm -f "$MOD_DIR/skip_mount"
 else
-    rm -rf "$MODS_DIR/system"
+    touch "$MOD_DIR/skip_mount"
 fi
 
 rm -f "${CLEANUP_PATH}"
