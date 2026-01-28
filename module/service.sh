@@ -175,8 +175,8 @@ anti_safetycore() {
     if [ -f "$MARK_SYSTEMIZE" ] && [ ! -e "$MODDIR/skip_mount" ]; then
         mode="system"
         mod_mode=" ✅Systemized"
-        require_metamodule "$DETECT_KSU" "$KSU_KERNEL_VER_CODE" "$MIN_VER_KERNELSU_TRY_METAMODULE" "KernelSU"
-        require_metamodule "$DETECT_APATCH" "$APATCH_VER_CODE" "$MIN_VER_APATCH_TRY_METAMODULE" "APatch"
+        [ "$DETECT_KSU" = true ] && require_metamodule "$DETECT_KSU" "$KSU_KERNEL_VER_CODE" "$MIN_VER_KERNELSU_TRY_METAMODULE" "KernelSU"
+        [ "$DETECT_KSU" = true ] && require_metamodule "$DETECT_APATCH" "$APATCH_VER_CODE" "$MIN_VER_APATCH_TRY_METAMODULE" "APatch"
     fi
 
     checkout_app "com.google.android.safetycore" "$PH_SafetyCore" && replaced_sc=true

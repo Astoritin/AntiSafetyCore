@@ -135,8 +135,8 @@ ecoe
 ecos "• Xposed modules (e.g. Core Patch)"
 ecos "• Some custom ROMs' built-in options"
 checkout_modules_dir
-require_metamodule "$DETECT_KSU" "$KSU_KERNEL_VER_CODE" "$MIN_VER_KERNELSU_TRY_METAMODULE" "KernelSU"
-require_metamodule "$DETECT_APATCH" "$APATCH_VER_CODE" "$MIN_VER_APATCH_TRY_METAMODULE" "APatch"
+[ "$DETECT_KSU" = true ] && require_metamodule "$DETECT_KSU" "$KSU_KERNEL_VER_CODE" "$MIN_VER_KERNELSU_TRY_METAMODULE" "KernelSU"
+[ "$DETECT_KSU" = true ] && require_metamodule "$DETECT_APATCH" "$APATCH_VER_CODE" "$MIN_VER_APATCH_TRY_METAMODULE" "APatch"
 ecoe
 ecos "        REBOOT TO TAKE EFFECT"
 ecoe
