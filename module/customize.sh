@@ -23,6 +23,9 @@ POST_D="/data/adb/post-fs-data.d/"
 CLEANUP_SH="cleanup_anti_safetycore.sh"
 CLEANUP_PATH="${POST_D}/${CLEANUP_SH}"
 
+MIN_VER_KERNELSU_TRY_METAMODULE=22098
+MIN_VER_APATCH_TRY_METAMODULE=11170
+
 mark_keep_running=false
 mark_systemize=false
 
@@ -84,9 +87,93 @@ extract() {
     fi
 }
 
+is_magisk() {
+
+    command -v magisk >/dev/null 2>&1 || return 1
+
+    MAGISK_V_VER_NAME="$(magisk -v)"
+    MAGISK_V_VER_CODE="$(magisk -V)"
+    case "$MAGISK_V_VER_NAME" in
+        *"-alpha"*) MAGISK_BRANCH_NAME="Alpha" ;;
+        *) MAGISK_BRANCH_NAME="Magisk" ;;
+    esac
+    DETECT_MAGISK="true"
+    return 0
+
+}
+
+is_kernelsu() {
+    if [ -n "$KSU" ]; then
+        DETECT_KSU="true"
+        ROOT_SOL="KernelSU"
+        return 0
+    fi
+    return 1
+}
+
+is_apatch() {
+    if [ -n "$APATCH" ]; then
+        DETECT_APATCH="true"
+        ROOT_SOL="APatch"
+        return 0
+    fi
+    return 1
+}
+
+install_env_check() {
+
+    ROOT_SOL="Magisk"
+    ROOT_SOL_COUNT=0
+
+    is_kernelsu && ROOT_SOL_COUNT=$((ROOT_SOL_COUNT + 1))
+    is_apatch && ROOT_SOL_COUNT=$((ROOT_SOL_COUNT + 1))
+    is_magisk && ROOT_SOL_COUNT=$((ROOT_SOL_COUNT + 1))
+
+    if [ "$DETECT_KSU" = "true" ]; then
+        ROOT_SOL="KernelSU"
+        ROOT_SOL_DETAIL="KernelSU ($KSU_KERNEL_VER_CODE)"
+    elif [ "$DETECT_APATCH" = "true" ]; then
+        ROOT_SOL="APatch"
+        ROOT_SOL_DETAIL="APatch ($APATCH_VER_CODE)"
+    elif [ "$DETECT_MAGISK" = "true" ]; then
+        ROOT_SOL="Magisk"
+        ROOT_SOL_DETAIL="$MAGISK_BRANCH_NAME (${MAGISK_VER_CODE:-$MAGISK_V_VER_CODE})"
+    fi
+
+    if [ "$ROOT_SOL_COUNT" -gt 1 ]; then
+        ROOT_SOL="Multiple"
+        ROOT_SOL_DETAIL="Multiple"
+    elif [ "$ROOT_SOL_COUNT" -lt 1 ]; then
+        ROOT_SOL="Unknown"
+        ROOT_SOL_DETAIL="Unknown"
+    fi
+
+}
+
+metamodule_required() {
+
+    if [ "$KSU_KERNEL_VER_CODE" -ge "$MIN_VER_KERNELSU_TRY_METAMODULE" ] || [ "$APATCH_VER_CODE" -ge "$MIN_VER_APATCH_TRY_METAMODULE" ]; then
+        ui_print "- Current Root solution requires"
+        ui_print "- metamodule for mounting"
+        ui_print "- Scanning metamodule"
+        checkout_modules_dir
+        if ! checkout_meta_module; then
+            ui_print "- You haven't installed any metamodule!"
+            ui_print "- Only User app mode is available"
+        else
+            ui_print "- Current metamodule: ${current_module_name} ${current_module_ver_name} (${current_module_ver_code})"
+        fi
+    fi
+
+}
+
 extract "customize.sh" "$TMPDIR"
 ui_print "- Setting up $MOD_NAME"
 ui_print "- Version: $MOD_VER"
+install_env_check
+ui_print "- Installing from $ROOT_SOL app"
+ui_print "- Root: $ROOT_SOL_DETAIL"
+[ "$DETECT_KSU" = true ] || [ "$DETECT_APATCH" = true ] && metamodule_required
 [ -f "$MARK_KEEP_RUNNING" ] && mark_keep_running=true
 [ -f "$MARK_SYSTEMIZE" ] && mark_systemize=true
 rm -rf "$MOD_DIR_OLD" "$MOD_UPDATE_DIR_OLD" "$CONFIG_DIR_OLD" "$CONFIG_DIR" > /dev/null 2>&1
