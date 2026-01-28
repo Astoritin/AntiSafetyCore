@@ -91,7 +91,7 @@ checkout_modules_dir() {
 
 }
 
-checkout_meta_module() {
+scan_metamodule() {
 
     for moddir in "$current_modules_dir" "$update_modules_dir"; do
         [ -d "$moddir" ] || continue
@@ -110,6 +110,23 @@ checkout_meta_module() {
         done
     done
     return 1
+
+}
+
+try_metamodule() {
+
+    : ${2:=0} ${3:=0}
+    [ "$1" = true ] && [ "$2" -ge "$3" ]
+
+}
+
+require_metamodule() {
+    
+    try_metamodule "$1" "$2" "$3" && scan_metamodule || {
+        mode="user"
+        mod_mode=" ❌Metamodule is required for systemizing apps on $4!"
+        return 1
+    }
 
 }
 
@@ -287,12 +304,8 @@ anti_safetycore() {
     if [ -f "$MARK_SYSTEMIZE" ] && [ ! -e "$MODDIR/skip_mount" ]; then
         mode="system"
         mod_mode=" ✅Systemized"
-        if { [ "$DETECT_KSU" = true ] && [ "$KSU_KERNEL_VER_CODE" -ge "$MIN_VER_KERNELSU_TRY_METAMODULE" ]; } || { [ "$DETECT_APATCH" = true ] && [ "$APATCH_VER_CODE" -ge "$MIN_VER_APATCH_TRY_METAMODULE" ]; }; then
-            if ! checkout_meta_module; then
-                mode="user"
-                mod_mode=" ❌Metamodule is required for systemized apps!"
-            fi
-        fi
+        require_metamodule "$DETECT_KSU" "$KSU_KERNEL_VER_CODE" "$MIN_VER_KERNELSU_TRY_METAMODULE" "KernelSU"
+        require_metamodule "$DETECT_APATCH" "$APATCH_VER_CODE" "$MIN_VER_APATCH_TRY_METAMODULE" "APatch"
     fi
 
     checkout_app "com.google.android.safetycore" "$PH_SafetyCore" && replaced_sc=true

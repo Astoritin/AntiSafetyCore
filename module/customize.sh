@@ -162,7 +162,7 @@ checkout_modules_dir() {
 
 }
 
-checkout_meta_module() {
+scan_metamodule() {
 
     for moddir in "$current_modules_dir" "$update_modules_dir"; do
         [ -d "$moddir" ] || continue
@@ -191,7 +191,7 @@ metamodule_required() {
         ecos "metamodule for mounting"
         ecos "Scanning metamodule"
         checkout_modules_dir
-        if ! checkout_meta_module; then
+        if ! scan_metamodule; then
             ecos "You haven't installed any metamodule!"
             ecos "Only User app mode is available"
         else
