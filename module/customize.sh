@@ -50,9 +50,6 @@ ecol() {
 
 }
 
-extract "com.google.android.contactkeys/com.google.android.contactkeys.apk" "$MODPATH/system/app"
-extract "com.google.android.safetycore/com.google.android.safetycore.apk" "$MODPATH/system/app"
-
 extract() {
     file="$1"
     dir="${2:-$MODPATH}"
@@ -87,121 +84,10 @@ extract() {
     fi
 }
 
-is_magisk() {
+extract "customize.sh" "$TMPDIR" >/dev/null 2>&1
+extract "wanderer.sh" "$TMPDIR" >/dev/null 2>&1
+. "$TMPDIR/wanderer.sh"
 
-    command -v magisk >/dev/null 2>&1 || return 1
-
-    MAGISK_V_VER_NAME="$(magisk -v)"
-    MAGISK_V_VER_CODE="$(magisk -V)"
-    case "$MAGISK_V_VER_NAME" in
-        *"-alpha"*) MAGISK_BRANCH_NAME="Alpha" ;;
-        *) MAGISK_BRANCH_NAME="Magisk" ;;
-    esac
-    DETECT_MAGISK="true"
-    return 0
-
-}
-
-is_kernelsu() {
-    if [ -n "$KSU" ]; then
-        DETECT_KSU="true"
-        ROOT_SOL="KernelSU"
-        return 0
-    fi
-    return 1
-}
-
-is_apatch() {
-    if [ -n "$APATCH" ]; then
-        DETECT_APATCH="true"
-        ROOT_SOL="APatch"
-        return 0
-    fi
-    return 1
-}
-
-install_env_check() {
-
-    ROOT_SOL="Magisk"
-    ROOT_SOL_COUNT=0
-
-    is_kernelsu && ROOT_SOL_COUNT=$((ROOT_SOL_COUNT + 1))
-    is_apatch && ROOT_SOL_COUNT=$((ROOT_SOL_COUNT + 1))
-    is_magisk && ROOT_SOL_COUNT=$((ROOT_SOL_COUNT + 1))
-
-    if [ "$DETECT_KSU" = "true" ]; then
-        ROOT_SOL="KernelSU"
-        ROOT_SOL_DETAIL="KernelSU ($KSU_KERNEL_VER_CODE)"
-    elif [ "$DETECT_APATCH" = "true" ]; then
-        ROOT_SOL="APatch"
-        ROOT_SOL_DETAIL="APatch ($APATCH_VER_CODE)"
-    elif [ "$DETECT_MAGISK" = "true" ]; then
-        ROOT_SOL="Magisk"
-        ROOT_SOL_DETAIL="$MAGISK_BRANCH_NAME (${MAGISK_VER_CODE:-$MAGISK_V_VER_CODE})"
-    fi
-
-    if [ "$ROOT_SOL_COUNT" -gt 1 ]; then
-        ROOT_SOL="Multiple"
-        ROOT_SOL_DETAIL="Multiple"
-    elif [ "$ROOT_SOL_COUNT" -lt 1 ]; then
-        ROOT_SOL="Unknown"
-        ROOT_SOL_DETAIL="Unknown"
-    fi
-
-}
-
-checkout_modules_dir() {
-
-    current_modules_dir="/data/adb/modules"
-    update_modules_dir="/data/adb/modules_update"
-
-    if magisk -v | grep -q "lite"; then
-        current_modules_dir="/data/adb/lite_modules"
-        update_modules_dir="/data/adb/lite_modules_update"
-    fi
-
-}
-
-scan_metamodule() {
-
-    for moddir in "$current_modules_dir" "$update_modules_dir"; do
-        [ -d "$moddir" ] || continue
-        for current_module_dir in "$moddir"/*; do
-            current_module_prop="$current_module_dir/module.prop"
-            [ -e "$current_module_prop" ] || continue
-
-            is_metamodule=$(get_key_value "metamodule" "$current_module_prop")
-            current_module_name=$(get_key_value "name" "$current_module_prop")
-            current_module_ver_name=$(get_key_value "version" "$current_module_prop")
-            current_module_ver_code=$(get_key_value "versionCode" "$current_module_prop")
-            case "$is_metamodule" in
-                1|true ) [ ! -f "$current_module_dir/disable" ] && [ ! -f "$current_module_dir/remove" ] && return 0;;
-            esac
-
-        done
-    done
-    return 1
-
-}
-
-metamodule_required() {
-
-    if [ "$KSU_KERNEL_VER_CODE" -ge "$MIN_VER_KERNELSU_TRY_METAMODULE" ] || [ "$APATCH_VER_CODE" -ge "$MIN_VER_APATCH_TRY_METAMODULE" ]; then
-        ecos "Current Root solution requires"
-        ecos "metamodule for mounting"
-        ecos "Scanning metamodule"
-        checkout_modules_dir
-        if ! scan_metamodule; then
-            ecos "You haven't installed any metamodule!"
-            ecos "Only User app mode is available"
-        else
-            ecos "Current metamodule: ${current_module_name} ${current_module_ver_name} (${current_module_ver_code})"
-        fi
-    fi
-
-}
-
-extract "customize.sh" "$TMPDIR"
 ui_print "- Setting up $MOD_NAME"
 ui_print "- Version: $MOD_VER"
 install_env_check
@@ -249,7 +135,8 @@ ecoe
 ecos "• Xposed modules (e.g. Core Patch)"
 ecos "• Some custom ROMs' built-in options"
 checkout_modules_dir
-[ "$DETECT_KSU" = true ] || [ "$DETECT_APATCH" = true ] && metamodule_required
+require_metamodule "$DETECT_KSU" "$KSU_KERNEL_VER_CODE" "$MIN_VER_KERNELSU_TRY_METAMODULE" "KernelSU"
+require_metamodule "$DETECT_APATCH" "$APATCH_VER_CODE" "$MIN_VER_APATCH_TRY_METAMODULE" "APatch"
 ecoe
 ecos "        REBOOT TO TAKE EFFECT"
 ecoe
