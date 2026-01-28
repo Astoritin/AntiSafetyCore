@@ -10,42 +10,43 @@ $line
  "
 }
 
+eco() { echo "- $1"; }
+
 uninstall_app() {
     package_name=$1
     app_name=$2
 
     if pm list packages | grep -Fxq "package:$package_name"; then
-        echo "Uninstalling current $app_name app"
+        eco "Uninstalling current $app_name app"
         pm uninstall "$package_name" >/dev/null 2>&1 && return 0
-        echo "$app_name uninstall failed, state $?"
+        eco "Failed, state $?"
     else
-        echo "$app_name not present, skipped"
+        eco "$app_name not present, skipped"
     fi
 }
 
 MOD_INTRO="GET LOST, SafetyCore & KeyVerifier!"
 
 ecol
-echo "Anti SafetyCore"
-echo "By Astoritin"
+eco "Anti SafetyCore"
+eco "By Astoritin"
 ecol
-echo "$MOD_INTRO"
+eco "$MOD_INTRO"
 ecol
-echo "This action will uninstall current"
-echo "SafetyCore & KeyVerifier app"
+eco "This action will uninstall current"
+eco "SafetyCore & KeyVerifier app"
 ecol
-echo "Just a workaround of shameless Google"
-echo "installing original apps in the background again"
+eco "Just a workaround of shameless Google"
+eco "installing original apps"
+eco "in the background again"
 ecol
-echo "Don't worry"
-echo "PlaceHolder apps will be installed"
-echo "again after once reboot"
+eco "Don't worry"
+eco "PlaceHolder apps will be installed"
+eco "again after once reboot"
 ecol
 sleep 2
-echo "Uninstalling current SafetyCore app..."
 uninstall_app "com.google.android.safetycore" "SafetyCore"
 sleep 1
-echo "Uninstalling current KeyVerifier app..."
 uninstall_app "com.google.android.contactkeys" "KeyVerifier"
 ecol
-echo "Done"
+eco "Done"
