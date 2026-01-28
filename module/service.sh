@@ -164,9 +164,9 @@ module_description_cleanup_schedule() {
 
 anti_safetycore() {
 
-    mod_state="✅Done."
+    mod_state=""
     mode="user"
-    mod_mode=" ✅User,"
+    mod_mode=" ✅User app,"
     mod_replace_sc=" ✅SafetyCore,"
     mod_replace_kv=" ✅KeyVerifier,"
     replaced_sc="false"
@@ -179,7 +179,7 @@ anti_safetycore() {
 
     if [ -f "$MARK_SYSTEMIZE" ] && [ ! -e "$MODDIR/skip_mount" ]; then
         mode="system"
-        mod_mode=" ✅Systemized,"
+        mod_mode=" ✅Systemized app,"
         [ "$DETECT_KSU" = true ] && update_metamodule_description "$DETECT_KSU" "$KSU_KERNEL_VER_CODE" "$MIN_VER_KERNELSU_TRY_METAMODULE" "KernelSU"
         [ "$DETECT_APATCH" = true ] && update_metamodule_description "$DETECT_APATCH" "$APATCH_VER_CODE" "$MIN_VER_APATCH_TRY_METAMODULE" "APatch"
     fi
@@ -192,10 +192,12 @@ anti_safetycore() {
         mod_replace_kv=""
         mod_replace_sc=""
     elif [ "$replaced_sc" = "true" ] && [ "$replaced_kv" = "true" ]; then
-        mod_state="✅All done."
+        mod_state=""
     elif [ "$replaced_sc" = "true" ]; then
+        mod_state=""
         mod_replace_kv=""
     elif [ "$replaced_kv" = "true" ]; then
+        mod_state=""
         mod_replace_sc=""
     fi
 
