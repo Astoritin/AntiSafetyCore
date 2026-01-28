@@ -61,6 +61,30 @@ install_env_check() {
 
 }
 
+get_key_value() {
+    local key=$1
+    local conf=$2
+    [ -n "$key" ] && [ -f "$conf" ] || return 1
+
+    awk -v key="$key" '
+        BEGIN { key_regex = "^" key "[[:space:]]*=" }
+        $0 ~ key_regex {
+            sub(key_regex, "")
+            sub(/^[[:space:]]*/, "")
+            if (sub(/^"/, "")) {
+                if (!sub(/"[[:space:]]*$/, "")) exit 1
+            } else {
+                sub(/[[:space:]]+$/, "")
+            }
+            print
+            exit 0
+        }
+        END { exit 1 }
+    ' "$conf" | tr -d '\r'
+
+    [ $? -eq 0 ] || return 1
+}
+
 checkout_modules_dir() {
 
     current_modules_dir="/data/adb/modules"
