@@ -285,11 +285,13 @@ anti_safetycore() {
     install_env_check
 
     if [ -f "$MARK_SYSTEMIZE" ] && [ ! -e "$MODDIR/skip_mount" ]; then
-        if checkout_meta_module; then
-            mode="system"
-            mod_mode=" ✅Systemized"
-        else
-            mod_mode=" ❌Metamodule is required for systemized apps!"
+        mode="system"
+        mod_mode=" ✅Systemized"
+        if { [ "$DETECT_KSU" = true ] && [ "$KSU_KERNEL_VER_CODE" -ge "$MIN_VER_KERNELSU_TRY_METAMODULE" ]; } || { [ "$DETECT_APATCH" = true ] && [ "$APATCH_VER_CODE" -ge "$MIN_VER_APATCH_TRY_METAMODULE" ]; }; then
+            if ! checkout_meta_module; then
+                mode="user"
+                mod_mode=" ❌Metamodule is required for systemized apps!"
+            fi
         fi
     fi
 
