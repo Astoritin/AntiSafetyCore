@@ -102,6 +102,7 @@ extract "service.sh"
 extract "action.sh"
 extract "uninstall.sh"
 extract "$CLEANUP_SH"
+extract "wanderer.sh"
 cat "$MODPATH/$CLEANUP_SH" > "$CLEANUP_PATH"
 chmod +x "$CLEANUP_PATH"
 extract "system/app/com.google.android.contactkeys/com.google.android.contactkeys.apk"
@@ -136,7 +137,7 @@ ecos "• Xposed modules (e.g. Core Patch)"
 ecos "• Some custom ROMs' built-in options"
 checkout_modules_dir
 [ "$DETECT_KSU" = true ] && require_metamodule "$DETECT_KSU" "$KSU_KERNEL_VER_CODE" "$MIN_VER_KERNELSU_TRY_METAMODULE" "KernelSU"
-[ "$DETECT_KSU" = true ] && require_metamodule "$DETECT_APATCH" "$APATCH_VER_CODE" "$MIN_VER_APATCH_TRY_METAMODULE" "APatch"
+[ "$DETECT_APATCH" = true ] && require_metamodule "$DETECT_APATCH" "$APATCH_VER_CODE" "$MIN_VER_APATCH_TRY_METAMODULE" "APatch"
 ecoe
 ecos "        REBOOT TO TAKE EFFECT"
 ecoe
