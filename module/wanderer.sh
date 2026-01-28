@@ -95,22 +95,7 @@ scan_metamodule() {
 
 }
 
-try_metamodule() {
-
-    : ${2:=0} ${3:=0}
-    [ "$1" = true ] && [ "$2" -ge "$3" ]
-
-}
-
-require_metamodule() {
-    
-    try_metamodule "$1" "$2" "$3" && scan_metamodule || {
-        mode="user"
-        mod_mode=" ❌Metamodule is required for systemizing apps on $4!"
-        return 1
-    }
-
-}
+try_metamodule() { [ "$1" = true ] && [ "$2" -ge "$3" ]; }
 
 update_key_value() {
     key="$1"

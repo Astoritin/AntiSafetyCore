@@ -84,6 +84,23 @@ extract() {
     fi
 }
 
+metamodule_required() {
+
+    if try_metamodule "$1" "$2" "$3"; then
+        ui_print "- Current $4 requires metamodule"
+        ui_print "- for mounting system files"
+        ui_print "- Scanning metamodule"
+        checkout_modules_dir
+        if ! scan_metamodule; then
+            ui_print "- You haven't installed metamodule yet!"
+            ui_print "- Only User app mode is available for $MOD_NAME"
+        else
+            ui_print "- Current metamodule: ${current_module_name} ${current_module_ver_name} (${current_module_ver_code})"
+        fi
+    fi
+
+}
+
 extract "customize.sh" "$TMPDIR" >/dev/null 2>&1
 extract "wanderer.sh" "$TMPDIR" >/dev/null 2>&1
 . "$TMPDIR/wanderer.sh"
@@ -136,8 +153,8 @@ ecoe
 ecos "• Xposed modules (e.g. Core Patch)"
 ecos "• Some custom ROMs' built-in options"
 checkout_modules_dir
-[ "$DETECT_KSU" = true ] && require_metamodule "$DETECT_KSU" "$KSU_KERNEL_VER_CODE" "$MIN_VER_KERNELSU_TRY_METAMODULE" "KernelSU"
-[ "$DETECT_APATCH" = true ] && require_metamodule "$DETECT_APATCH" "$APATCH_VER_CODE" "$MIN_VER_APATCH_TRY_METAMODULE" "APatch"
+[ "$DETECT_KSU" = true ] && metamodule_required "$DETECT_KSU" "$KSU_KERNEL_VER_CODE" "$MIN_VER_KERNELSU_TRY_METAMODULE" "KernelSU"
+[ "$DETECT_APATCH" = true ] && metamodule_required "$DETECT_APATCH" "$APATCH_VER_CODE" "$MIN_VER_APATCH_TRY_METAMODULE" "APatch"
 ecoe
 ecos "        REBOOT TO TAKE EFFECT"
 ecoe

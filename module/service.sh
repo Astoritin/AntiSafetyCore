@@ -143,6 +143,17 @@ check_screen_unlock() {
 
 }
 
+update_metamodule_description() {
+    
+    try_metamodule "$1" "$2" "$3" && scan_metamodule || {
+        mode="user"
+        mod_mode=" ❌Metamodule is required for systemizing apps on $4!"
+        return 1
+    }
+
+}
+
+
 module_description_cleanup_schedule() {
 
     POST_D="/data/adb/post-fs-data.d/"
@@ -175,8 +186,8 @@ anti_safetycore() {
     if [ -f "$MARK_SYSTEMIZE" ] && [ ! -e "$MODDIR/skip_mount" ]; then
         mode="system"
         mod_mode=" ✅Systemized,"
-        [ "$DETECT_KSU" = true ] && require_metamodule "$DETECT_KSU" "$KSU_KERNEL_VER_CODE" "$MIN_VER_KERNELSU_TRY_METAMODULE" "KernelSU"
-        [ "$DETECT_APATCH" = true ] && require_metamodule "$DETECT_APATCH" "$APATCH_VER_CODE" "$MIN_VER_APATCH_TRY_METAMODULE" "APatch"
+        [ "$DETECT_KSU" = true ] && update_metamodule_description "$DETECT_KSU" "$KSU_KERNEL_VER_CODE" "$MIN_VER_KERNELSU_TRY_METAMODULE" "KernelSU"
+        [ "$DETECT_APATCH" = true ] && update_metamodule_description "$DETECT_APATCH" "$APATCH_VER_CODE" "$MIN_VER_APATCH_TRY_METAMODULE" "APatch"
     fi
 
     checkout_app "com.google.android.safetycore" "$PH_SafetyCore" && replaced_sc=true
