@@ -90,6 +90,8 @@ fetch_app_path() {
 
 }
 
+check_system_app() { [ -z "$1" ] && return 1; pm list packages -s 2>/dev/null | grep -Fxq "package:$1"; }
+
 checkout_app() {
 
     package_name=$1
@@ -100,11 +102,18 @@ checkout_app() {
         return
     fi
 
-    existed_apk_path=$(fetch_app_path "$package_name")
-    if file_compare "$apk_to_install" "$existed_apk_path"; then
-        return 0
-    else
-        let_us_do_it "$package_name" "$apk_to_install"
+    if [ "$mode" = "user" ]; then
+        existed_apk_path=$(fetch_app_path "$package_name")
+        if file_compare "$apk_to_install" "$existed_apk_path"; then
+            return 0
+        else
+            let_us_do_it "$package_name" "$apk_to_install"
+        fi
+    elif [ "$mode" = "system" ]; then
+        if check_system_app "$package_name"; then
+            return 0
+        fi
+        return 1
     fi
 
 }
@@ -166,20 +175,20 @@ module_description_cleanup_schedule() {
 
 anti_safetycore() {
 
-    mod_mode="✅User"
     mod_state="✅Done."
-    mod_replace_sc="✅SafetyCore"
-    mod_replace_kv="✅KeyVerifier"
+    mod_mode=" ✅User"
+    mod_replace_sc=" ✅SafetyCore"
+    mod_replace_kv=" ✅KeyVerifier"
 
     PH_SafetyCore="$PLACEHOLDER_DIR/com.google.android.safetycore.apk"
     PH_KeyVerifier="$PLACEHOLDER_DIR/com.google.android.contactkeys.apk"
 
     if [ -f "$MARK_SYSTEMIZE" ] && [ ! -e "$MODDIR/skip_mount" ]; then
-        mod_mode="✅Systemized"
+        mod_mode=" ✅Systemized"
     fi
 
-    checkout_apps "com.google.android.safetycore" "$PH_SafetyCore" && replaced_sc=true
-    checkout_apps "com.google.android.contactkeys" "$PH_KeyVerifier" && replaced_kv=true
+    checkout_app "com.google.android.safetycore" "$PH_SafetyCore" && replaced_sc=true
+    checkout_app "com.google.android.contactkeys" "$PH_KeyVerifier" && replaced_kv=true
 
     if [ "$replaced_sc" = "false" ] && [ "$replaced_kv" = "false" ]; then
         mod_state="❌No effect. Something went wrong!"
@@ -194,9 +203,9 @@ anti_safetycore() {
     fi
 
     if [ "$checkout_count" -gt 0 ]; then
-        DESCRIPTION="[${mod_state} ${mod_mode}: ${mod_replace_sc} ${mod_replace_kv}, ✅${checkout_count} time(s)] $MOD_INTRO"
+        DESCRIPTION="[${mod_state}${mod_mode}${mod_replace_sc}${mod_replace_kv}, ✅${checkout_count} time(s)] $MOD_INTRO"
     else
-        DESCRIPTION="[${mod_state} ${mod_mode}: ${mod_replace_sc} ${mod_replace_kv}] $MOD_INTRO"
+        DESCRIPTION="[${mod_state}${mod_mode}${mod_replace_sc}${mod_replace_kv}] $MOD_INTRO"
     fi
 
     update_key_value "description" "$MODULE_PROP" "$DESCRIPTION"
@@ -215,7 +224,7 @@ while true; do
     anti_safetycore
 
     [ -f "$MARK_KEEP_RUNNING" ] || exit 0
-    [ -f "$MARK_SYSTEMIZE" ] && exit 0
+    [ -f "$MARK_SYSTEMIZE" ] || exit 0
     [ -e "$MODDIR/skip_mount" ] || exit 0
     [ "$MARK_ACTION_REPLACE" = true ] && exit 0
 
