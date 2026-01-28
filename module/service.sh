@@ -161,9 +161,9 @@ anti_safetycore() {
 
     mod_state="✅Done."
     mode="user"
-    mod_mode=" ✅User"
-    mod_replace_sc=" ✅SafetyCore"
-    mod_replace_kv=" ✅KeyVerifier"
+    mod_mode=" ✅User,"
+    mod_replace_sc=" ✅SafetyCore,"
+    mod_replace_kv=" ✅KeyVerifier,"
     replaced_sc="false"
     replaced_kv="false"
 
@@ -174,7 +174,7 @@ anti_safetycore() {
 
     if [ -f "$MARK_SYSTEMIZE" ] && [ ! -e "$MODDIR/skip_mount" ]; then
         mode="system"
-        mod_mode=" ✅Systemized"
+        mod_mode=" ✅Systemized,"
         [ "$DETECT_KSU" = true ] && require_metamodule "$DETECT_KSU" "$KSU_KERNEL_VER_CODE" "$MIN_VER_KERNELSU_TRY_METAMODULE" "KernelSU"
         [ "$DETECT_APATCH" = true ] && require_metamodule "$DETECT_APATCH" "$APATCH_VER_CODE" "$MIN_VER_APATCH_TRY_METAMODULE" "APatch"
     fi
@@ -195,7 +195,7 @@ anti_safetycore() {
     fi
 
     if [ "$checkout_count" -gt 0 ]; then
-        DESCRIPTION="[${mod_state}${mod_mode}${mod_replace_sc}${mod_replace_kv} ✅${checkout_count} time(s) ✅${ROOT_SOL_DETAIL}] $MOD_INTRO"
+        DESCRIPTION="[${mod_state}${mod_mode}${mod_replace_sc}${mod_replace_kv} ✅${checkout_count} time(s), ✅${ROOT_SOL_DETAIL}] $MOD_INTRO"
     else
         DESCRIPTION="[${mod_state}${mod_mode}${mod_replace_sc}${mod_replace_kv} ✅${ROOT_SOL_DETAIL}] $MOD_INTRO"
     fi
