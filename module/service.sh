@@ -13,10 +13,6 @@ MODULE_PROP="$MODDIR/module.prop"
 MOD_INTRO="GET LOST, SafetyCore & KeyVerifier!"
 LOCAL_TMP="/data/local/tmp"
 
-replaced_sc="false"
-replaced_kv="false"
-desc_state=""
-
 is_magisk() {
 
     command -v magisk >/dev/null 2>&1 || return 1
@@ -242,6 +238,8 @@ anti_safetycore() {
     mod_mode=" ✅User"
     mod_replace_sc=" ✅SafetyCore"
     mod_replace_kv=" ✅KeyVerifier"
+    replaced_sc="false"
+    replaced_kv="false"
 
     PH_SafetyCore="$PLACEHOLDER_DIR/com.google.android.safetycore.apk"
     PH_KeyVerifier="$PLACEHOLDER_DIR/com.google.android.contactkeys.apk"
@@ -266,7 +264,7 @@ anti_safetycore() {
     fi
 
     if [ "$checkout_count" -gt 0 ]; then
-        DESCRIPTION="[${mod_state}${mod_mode}${mod_replace_sc}${mod_replace_kv}, ✅${checkout_count} time(s)] $MOD_INTRO"
+        DESCRIPTION="[${mod_state}${mod_mode}${mod_replace_sc}${mod_replace_kv} ✅Replace ${checkout_count} time(s)] $MOD_INTRO"
     else
         DESCRIPTION="[${mod_state}${mod_mode}${mod_replace_sc}${mod_replace_kv}] $MOD_INTRO"
     fi
