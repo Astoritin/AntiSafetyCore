@@ -195,9 +195,9 @@ anti_safetycore() {
     fi
 
     if [ "$checkout_count" -gt 0 ]; then
-        DESCRIPTION="[${mod_state}${mod_mode}${mod_replace_sc}${mod_replace_kv} ✅Replace ${checkout_count} time(s) ✅Root: ${ROOT_SOL_DETAIL}] $MOD_INTRO"
+        DESCRIPTION="[${mod_state}${mod_mode}${mod_replace_sc}${mod_replace_kv} ✅${checkout_count} time(s) ✅${ROOT_SOL_DETAIL}] $MOD_INTRO"
     else
-        DESCRIPTION="[${mod_state}${mod_mode}${mod_replace_sc}${mod_replace_kv} ✅Root: ${ROOT_SOL_DETAIL}] $MOD_INTRO"
+        DESCRIPTION="[${mod_state}${mod_mode}${mod_replace_sc}${mod_replace_kv} ✅${ROOT_SOL_DETAIL}] $MOD_INTRO"
     fi
 
     update_key_value "description" "$MODULE_PROP" "$DESCRIPTION"

@@ -1,7 +1,4 @@
 #!/system/bin/sh
-MODDIR=${0%/*}
-
-MARK_ACTION_REPLACE=true
 
 ecol() {
 
@@ -13,11 +10,6 @@ ecol() {
 
 }
 
-CONFIG_DIR="/data/adb/anti_safetycore"
-PH_DIR="$MODDIR/system/app"
-
-wait_timeout=3
-
 MOD_INTRO="GET LOST, SafetyCore & KeyVerifier!"
 
 ecol
@@ -27,29 +19,10 @@ ecol
 echo " $MOD_INTRO"
 ecol
 echo " This action is to"
-echo " Replace SafetyCore and KeyVerifier"
-echo " with placeholder app forcefully"
+echo " uninstall current SafetyCore"
+echo " and KeyVerifier APPs"
 ecol
-echo " Will start after $((wait_timeout - 1)) seconds"
-echo " Press any key or"
-echo " touch screen at once"
-echo " to skip replacing"
-ecol
-
-if [ ! -d "$PH_DIR" ]; then
-    echo " Placeholder dir does NOT exist!"
-    return 1
-fi
-
-if read -r -t "$wait_timeout" _ < <(getevent -ql); then
-    echo " You have pressed a key"
-    echo " or touch screen at once"
-    echo " skip replacing"
-    return 0
-fi
-echo " Replace with placeholder apks"
-
-. "$MODDIR/service.sh"
-
+pm uninstall "com.google.android.safetycore"
+pm uninstall "com.google.android.contactkeys"
 ecol
 echo " Done"
