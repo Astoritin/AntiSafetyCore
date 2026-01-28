@@ -98,11 +98,6 @@ checkout_app() {
     package_name=$1
     apk_to_install=$2
 
-    if [ "$MARK_ACTION_REPLACE" = true ]; then
-        let_us_do_it "$package_name" "$apk_to_install"
-        return
-    fi
-
     if [ "$mode" = "user" ]; then
         existed_apk_path=$(fetch_app_path "$package_name")
         if file_compare "$apk_to_install" "$existed_apk_path"; then
@@ -152,7 +147,6 @@ update_metamodule_description() {
     }
 
 }
-
 
 module_description_cleanup_schedule() {
 
@@ -230,7 +224,6 @@ while true; do
     [ -f "$MARK_KEEP_RUNNING" ] || exit 0
     [ -f "$MARK_SYSTEMIZE" ] || exit 0
     [ -e "$MODDIR/skip_mount" ] || exit 0
-    [ "$MARK_ACTION_REPLACE" = true ] && exit 0
 
     checkout_count=$((checkout_count + 1))
     sleep 1800
