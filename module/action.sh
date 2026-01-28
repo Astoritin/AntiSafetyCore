@@ -5,9 +5,7 @@ ecol() {
     symbol=*
 
     line=$(printf "%-${length}s" | tr ' ' "$symbol")
-    echo " 
-$line
- "
+    echo "$line"
 }
 
 eco() { echo "- $1"; }
