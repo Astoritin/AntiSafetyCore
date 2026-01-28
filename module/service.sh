@@ -13,6 +13,9 @@ MODULE_PROP="$MODDIR/module.prop"
 MOD_INTRO="GET LOST, SafetyCore & KeyVerifier!"
 LOCAL_TMP="/data/local/tmp"
 
+MIN_VER_KERNELSU_TRY_METAMODULE=22098
+MIN_VER_APATCH_TRY_METAMODULE=11170
+
 is_magisk() {
 
     command -v magisk >/dev/null 2>&1 || return 1
@@ -73,6 +76,40 @@ install_env_check() {
         ROOT_SOL="Unknown"
         ROOT_SOL_DETAIL="Unknown"
     fi
+
+}
+
+checkout_modules_dir() {
+
+    current_modules_dir="/data/adb/modules"
+    update_modules_dir="/data/adb/modules_update"
+
+    if magisk -v | grep -q "lite"; then
+        current_modules_dir="/data/adb/lite_modules"
+        update_modules_dir="/data/adb/lite_modules_update"
+    fi
+
+}
+
+checkout_meta_module() {
+
+    for moddir in "$current_modules_dir" "$update_modules_dir"; do
+        [ -d "$moddir" ] || continue
+        for current_module_dir in "$moddir"/*; do
+            current_module_prop="$current_module_dir/module.prop"
+            [ -e "$current_module_prop" ] || continue
+
+            is_metamodule=$(get_key_value "metamodule" "$current_module_prop")
+            current_module_name=$(get_key_value "name" "$current_module_prop")
+            current_module_ver_name=$(get_key_value "version" "$current_module_prop")
+            current_module_ver_code=$(get_key_value "versionCode" "$current_module_prop")
+            case "$is_metamodule" in
+                1|true ) [ ! -f "$current_module_dir/disable" ] && [ ! -f "$current_module_dir/remove" ] && return 0;;
+            esac
+
+        done
+    done
+    return 1
 
 }
 
@@ -235,6 +272,7 @@ module_description_cleanup_schedule() {
 anti_safetycore() {
 
     mod_state="✅Done."
+    mode="user"
     mod_mode=" ✅User"
     mod_replace_sc=" ✅SafetyCore"
     mod_replace_kv=" ✅KeyVerifier"
@@ -244,8 +282,15 @@ anti_safetycore() {
     PH_SafetyCore="$PLACEHOLDER_DIR/com.google.android.safetycore.apk"
     PH_KeyVerifier="$PLACEHOLDER_DIR/com.google.android.contactkeys.apk"
 
+    install_env_check
+
     if [ -f "$MARK_SYSTEMIZE" ] && [ ! -e "$MODDIR/skip_mount" ]; then
-        mod_mode=" ✅Systemized"
+        if checkout_meta_module; then
+            mode="system"
+            mod_mode=" ✅Systemized"
+        else
+            mod_mode=" ❌Metamodule is required for systemized apps!"
+        fi
     fi
 
     checkout_app "com.google.android.safetycore" "$PH_SafetyCore" && replaced_sc=true
@@ -264,9 +309,9 @@ anti_safetycore() {
     fi
 
     if [ "$checkout_count" -gt 0 ]; then
-        DESCRIPTION="[${mod_state}${mod_mode}${mod_replace_sc}${mod_replace_kv} ✅Replace ${checkout_count} time(s)] $MOD_INTRO"
+        DESCRIPTION="[${mod_state}${mod_mode}${mod_replace_sc}${mod_replace_kv} ✅Replace ${checkout_count} time(s) ✅Root: ${ROOT_SOL_DETAIL}] $MOD_INTRO"
     else
-        DESCRIPTION="[${mod_state}${mod_mode}${mod_replace_sc}${mod_replace_kv}] $MOD_INTRO"
+        DESCRIPTION="[${mod_state}${mod_mode}${mod_replace_sc}${mod_replace_kv} ✅Root: ${ROOT_SOL_DETAIL}] $MOD_INTRO"
     fi
 
     update_key_value "description" "$MODULE_PROP" "$DESCRIPTION"
@@ -279,6 +324,7 @@ done
 
 module_description_cleanup_schedule
 checkout_count=0
+checkout_modules_dir
 
 while true; do
 

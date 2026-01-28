@@ -150,18 +150,52 @@ install_env_check() {
 
 }
 
+checkout_modules_dir() {
+
+    current_modules_dir="/data/adb/modules"
+    update_modules_dir="/data/adb/modules_update"
+
+    if magisk -v | grep -q "lite"; then
+        current_modules_dir="/data/adb/lite_modules"
+        update_modules_dir="/data/adb/lite_modules_update"
+    fi
+
+}
+
+checkout_meta_module() {
+
+    for moddir in "$current_modules_dir" "$update_modules_dir"; do
+        [ -d "$moddir" ] || continue
+        for current_module_dir in "$moddir"/*; do
+            current_module_prop="$current_module_dir/module.prop"
+            [ -e "$current_module_prop" ] || continue
+
+            is_metamodule=$(get_key_value "metamodule" "$current_module_prop")
+            current_module_name=$(get_key_value "name" "$current_module_prop")
+            current_module_ver_name=$(get_key_value "version" "$current_module_prop")
+            current_module_ver_code=$(get_key_value "versionCode" "$current_module_prop")
+            case "$is_metamodule" in
+                1|true ) [ ! -f "$current_module_dir/disable" ] && [ ! -f "$current_module_dir/remove" ] && return 0;;
+            esac
+
+        done
+    done
+    return 1
+
+}
+
 metamodule_required() {
 
     if [ "$KSU_KERNEL_VER_CODE" -ge "$MIN_VER_KERNELSU_TRY_METAMODULE" ] || [ "$APATCH_VER_CODE" -ge "$MIN_VER_APATCH_TRY_METAMODULE" ]; then
-        ui_print "- Current Root solution requires"
-        ui_print "- metamodule for mounting"
-        ui_print "- Scanning metamodule"
+        ecos "Current Root solution requires"
+        ecos "metamodule for mounting"
+        ecos "Scanning metamodule"
         checkout_modules_dir
         if ! checkout_meta_module; then
-            ui_print "- You haven't installed any metamodule!"
-            ui_print "- Only User app mode is available"
+            ecos "You haven't installed any metamodule!"
+            ecos "Only User app mode is available"
         else
-            ui_print "- Current metamodule: ${current_module_name} ${current_module_ver_name} (${current_module_ver_code})"
+            ecos "Current metamodule: ${current_module_name} ${current_module_ver_name} (${current_module_ver_code})"
         fi
     fi
 
@@ -173,7 +207,6 @@ ui_print "- Version: $MOD_VER"
 install_env_check
 ui_print "- Installing from $ROOT_SOL app"
 ui_print "- Root: $ROOT_SOL_DETAIL"
-[ "$DETECT_KSU" = true ] || [ "$DETECT_APATCH" = true ] && metamodule_required
 [ -f "$MARK_KEEP_RUNNING" ] && mark_keep_running=true
 [ -f "$MARK_SYSTEMIZE" ] && mark_systemize=true
 rm -rf "$MOD_DIR_OLD" "$MOD_UPDATE_DIR_OLD" "$CONFIG_DIR_OLD" "$CONFIG_DIR" > /dev/null 2>&1
@@ -215,6 +248,8 @@ ecos "These settings are commonly found in:"
 ecoe
 ecos "• Xposed modules (e.g. Core Patch)"
 ecos "• Some custom ROMs' built-in options"
+checkout_modules_dir
+[ "$DETECT_KSU" = true ] || [ "$DETECT_APATCH" = true ] && metamodule_required
 ecoe
 ecos "        REBOOT TO TAKE EFFECT"
 ecoe
