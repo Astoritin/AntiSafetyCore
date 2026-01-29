@@ -217,7 +217,7 @@ while true; do
     module_description_update
 
     [ -f "$MARK_KEEP_RUNNING" ] || exit 0
-    [ -f "$MARK_SYSTEMIZE" ] && exit 0
+    [ -f "$MARK_SYSTEMIZE" ] && [ "$can_systemize" = true ] && exit 0
     [ -e "$MODDIR/skip_mount" ] || exit 0
 
     checkout_count=$((checkout_count + 1))
