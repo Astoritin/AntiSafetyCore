@@ -87,11 +87,11 @@ extract() {
 metamodule_required() {
 
     if try_metamodule "$1" "$2" "$3"; then
-        ecol;ecoe
+        ecoe
         ecos "Current $4 requires metamodule"
         ecos "for mounting system files"
         ecos "Scanning metamodule"
-        ecoe;ecol
+        ecoe
         checkout_modules_dir
         ecol;ecoe
         if ! scan_metamodule; then
