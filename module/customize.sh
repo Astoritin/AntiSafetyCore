@@ -87,16 +87,20 @@ extract() {
 metamodule_required() {
 
     if try_metamodule "$1" "$2" "$3"; then
-        ui_print "- Current $4 requires metamodule"
-        ui_print "- for mounting system files"
-        ui_print "- Scanning metamodule"
+        ecol;ecoe
+        ecos "Current $4 requires metamodule"
+        ecos "for mounting system files"
+        ecos "Scanning metamodule"
+        ecoe;ecol
         checkout_modules_dir
+        ecol;ecoe
         if ! scan_metamodule; then
-            ui_print "- You haven't installed metamodule yet!"
-            ui_print "- Only User app mode is available for $MOD_NAME"
+            ecos "You haven't installed metamodule yet!"
+            ecos "Only User app mode is available for $MOD_NAME"
         else
-            ui_print "- Current metamodule: ${current_module_name} ${current_module_ver_name} (${current_module_ver_code})"
+            ecos "Current metamodule: ${current_module_name} ${current_module_ver_name} (${current_module_ver_code})"
         fi
+        ecoe;ecol
     fi
 
 }
@@ -128,9 +132,6 @@ extract "system/app/com.google.android.contactkeys/com.google.android.contactkey
 extract "system/app/com.google.android.safetycore/com.google.android.safetycore.apk" "$PLACEHOLDER_DIR" "true" > /dev/null 2>&1
 [ "$mark_keep_running" = false ] || touch "$MARK_KEEP_RUNNING"
 [ "$mark_systemize" = false ] || touch "$MARK_SYSTEMIZE" && touch "$MODPATH/skip_mount"
-checkout_modules_dir
-[ "$DETECT_KSU" = true ] && metamodule_required "$DETECT_KSU" "$KSU_KERNEL_VER_CODE" "$MIN_VER_KERNELSU_TRY_METAMODULE" "KernelSU"
-[ "$DETECT_APATCH" = true ] && metamodule_required "$DETECT_APATCH" "$APATCH_VER_CODE" "$MIN_VER_APATCH_TRY_METAMODULE" "APatch"
 ecol
 ecoe
 ecos "              NOTICE"
@@ -159,6 +160,9 @@ ecoe
 ecos "        REBOOT TO TAKE EFFECT"
 ecoe
 ecol
+checkout_modules_dir
+[ "$DETECT_KSU" = true ] && metamodule_required "$DETECT_KSU" "$KSU_KERNEL_VER_CODE" "$MIN_VER_KERNELSU_TRY_METAMODULE" "KernelSU"
+[ "$DETECT_APATCH" = true ] && metamodule_required "$DETECT_APATCH" "$APATCH_VER_CODE" "$MIN_VER_APATCH_TRY_METAMODULE" "APatch"
 ui_print "- Setting permissions"
 set_perm_recursive "$MODPATH" 0 0 0755 0644
 ui_print "- Welcome to $MOD_NAME!"
