@@ -186,9 +186,8 @@ module_description_update() {
 
     if [ "$work_mode" = "system" ]; then
         desc_work_mode="✅Systemized."
-        if [ "$can_systemize" = false ]; then
-            desc_work_mode="❌Metamodule required!"
-        fi
+    elif [ "$can_systemize" = false ]; then
+        desc_work_mode="💡Requires Metamodule to systemize. Reverted to user-app install."
     elif [ "$work_mode" = "user" ]; then
         desc_work_mode="✅Installed."
     fi
@@ -217,7 +216,7 @@ while true; do
     module_description_update
 
     [ -f "$MARK_KEEP_RUNNING" ] || exit 0
-    [ -f "$MARK_SYSTEMIZE" ] && [ "$can_systemize" = true ] && exit 0
+    [ "$work_mode" = "system" ] && exit 0
     [ -e "$MODDIR/skip_mount" ] || exit 0
 
     checkout_count=$((checkout_count + 1))
