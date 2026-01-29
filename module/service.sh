@@ -185,12 +185,12 @@ anti_safetycore() {
 module_description_update() {
 
     if [ "$work_mode" = "system" ]; then
-        desc_work_mode="✅Systemize"
+        desc_work_mode="✅Systemized."
         if [ "$can_systemize" = false ]; then
             desc_work_mode="❌Metamodule required!"
         fi
     elif [ "$work_mode" = "user" ]; then
-        desc_work_mode="✅User apps "
+        desc_work_mode="✅Installed."
     fi
 
     [ "$replaced_safetycore" = true ] && desc_safetycore=" ✅SafetyCore,"
@@ -198,7 +198,7 @@ module_description_update() {
 
     [ "$checkout_count" -gt 0 ] && desc_schedule=" ✅$checkout_count time(s),"
 
-    DESCRIPTION="[${desc_work_mode}${desc_safetycore}${desc_keyverifier}${desc_schedule} ${ROOT_SOL_DETAIL}] $MOD_INTRO"
+    DESCRIPTION="[${desc_work_mode}${desc_safetycore}${desc_keyverifier}${desc_schedule} ✅${ROOT_SOL_DETAIL}] $MOD_INTRO"
     update_key_value "description" "$MODULE_PROP" "$DESCRIPTION"
 
 }
