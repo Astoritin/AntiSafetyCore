@@ -98,7 +98,8 @@ metamodule_required() {
             ecos "You haven't installed metamodule yet!"
             ecos "Only User app mode is available for $MOD_NAME"
         else
-            ecos "Current metamodule: ${current_module_name} ${current_module_ver_name} (${current_module_ver_code})"
+            ecos "Current metamodule:"
+            ecos "${current_module_name} ${current_module_ver_name} (${current_module_ver_code})"
         fi
         ecoe;ecol
     fi
