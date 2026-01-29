@@ -128,6 +128,9 @@ extract "system/app/com.google.android.contactkeys/com.google.android.contactkey
 extract "system/app/com.google.android.safetycore/com.google.android.safetycore.apk" "$PLACEHOLDER_DIR" "true" > /dev/null 2>&1
 [ "$mark_keep_running" = false ] || touch "$MARK_KEEP_RUNNING"
 [ "$mark_systemize" = false ] || touch "$MARK_SYSTEMIZE" && touch "$MODPATH/skip_mount"
+checkout_modules_dir
+[ "$DETECT_KSU" = true ] && metamodule_required "$DETECT_KSU" "$KSU_KERNEL_VER_CODE" "$MIN_VER_KERNELSU_TRY_METAMODULE" "KernelSU"
+[ "$DETECT_APATCH" = true ] && metamodule_required "$DETECT_APATCH" "$APATCH_VER_CODE" "$MIN_VER_APATCH_TRY_METAMODULE" "APatch"
 ecol
 ecoe
 ecos "              NOTICE"
@@ -152,9 +155,6 @@ ecos "These settings are commonly found in:"
 ecoe
 ecos "• Xposed modules (e.g. Core Patch)"
 ecos "• Some custom ROMs' built-in options"
-checkout_modules_dir
-[ "$DETECT_KSU" = true ] && metamodule_required "$DETECT_KSU" "$KSU_KERNEL_VER_CODE" "$MIN_VER_KERNELSU_TRY_METAMODULE" "KernelSU"
-[ "$DETECT_APATCH" = true ] && metamodule_required "$DETECT_APATCH" "$APATCH_VER_CODE" "$MIN_VER_APATCH_TRY_METAMODULE" "APatch"
 ecoe
 ecos "        REBOOT TO TAKE EFFECT"
 ecoe

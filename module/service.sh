@@ -98,14 +98,14 @@ checkout_app() {
     package_name=$1
     apk_to_install=$2
 
-    if [ "$mode" = "user" ]; then
+    if [ "$work_mode" = "user" ]; then
         existed_apk_path=$(fetch_app_path "$package_name")
         if file_compare "$apk_to_install" "$existed_apk_path"; then
             return 0
         else
             let_us_do_it "$package_name" "$apk_to_install"
         fi
-    elif [ "$mode" = "system" ]; then
+    elif [ "$work_mode" = "system" ]; then
         if check_system_app "$package_name"; then
             return 0
         fi
@@ -141,8 +141,8 @@ check_screen_unlock() {
 update_metamodule_description() {
     
     try_metamodule "$1" "$2" "$3" && scan_metamodule || {
-        mode="user"
-        mod_mode=" ❌Metamodule is required for systemizing apps on $4!"
+        work_mode="user"
+        can_systemize=false
         return 1
     }
 
@@ -164,49 +164,41 @@ module_description_cleanup_schedule() {
 
 anti_safetycore() {
 
-    mod_state=""
-    mode="user"
-    mod_mode=" ✅User app,"
-    mod_replace_sc=" ✅SafetyCore,"
-    mod_replace_kv=" ✅KeyVerifier,"
-    replaced_sc="false"
-    replaced_kv="false"
-
-    PH_SafetyCore="$PLACEHOLDER_DIR/com.google.android.safetycore.apk"
-    PH_KeyVerifier="$PLACEHOLDER_DIR/com.google.android.contactkeys.apk"
+    work_mode=user
+    can_systemize=true
+    replaced_safetycore=false
+    replaced_keyverifier=false
 
     install_env_check
 
     if [ -f "$MARK_SYSTEMIZE" ] && [ ! -e "$MODDIR/skip_mount" ]; then
-        mode="system"
-        mod_mode=" ✅Systemized app,"
+        work_mode=system
         [ "$DETECT_KSU" = true ] && update_metamodule_description "$DETECT_KSU" "$KSU_KERNEL_VER_CODE" "$MIN_VER_KERNELSU_TRY_METAMODULE" "KernelSU"
         [ "$DETECT_APATCH" = true ] && update_metamodule_description "$DETECT_APATCH" "$APATCH_VER_CODE" "$MIN_VER_APATCH_TRY_METAMODULE" "APatch"
     fi
 
-    checkout_app "com.google.android.safetycore" "$PH_SafetyCore" && replaced_sc=true
-    checkout_app "com.google.android.contactkeys" "$PH_KeyVerifier" && replaced_kv=true
+    checkout_app "com.google.android.safetycore" "$PLACEHOLDER_DIR/com.google.android.safetycore.apk" && replaced_safetycore=true
+    checkout_app "com.google.android.contactkeys" "$PLACEHOLDER_DIR/com.google.android.contactkeys.apk" && replaced_keyverifier=true
 
-    if [ "$replaced_sc" = "false" ] && [ "$replaced_kv" = "false" ]; then
-        mod_state="❌No effect. Something went wrong!"
-        mod_replace_kv=""
-        mod_replace_sc=""
-    elif [ "$replaced_sc" = "true" ] && [ "$replaced_kv" = "true" ]; then
-        mod_state=""
-    elif [ "$replaced_sc" = "true" ]; then
-        mod_state=""
-        mod_replace_kv=""
-    elif [ "$replaced_kv" = "true" ]; then
-        mod_state=""
-        mod_replace_sc=""
+}
+
+module_description_update() {
+
+    if [ "$work_mode" = "system" ]; then
+        desc_work_mode="✅Systemize"
+        if [ "$can_systemize" = false ]; then
+            desc_work_mode="❌Metamodule required!"
+        fi
+    elif [ "$work_mode" = "user" ]; then
+        desc_work_mode="✅User apps "
     fi
 
-    if [ "$checkout_count" -gt 0 ]; then
-        DESCRIPTION="[${mod_state}${mod_mode}${mod_replace_sc}${mod_replace_kv} ✅${checkout_count} time(s), ✅${ROOT_SOL_DETAIL}] $MOD_INTRO"
-    else
-        DESCRIPTION="[${mod_state}${mod_mode}${mod_replace_sc}${mod_replace_kv} ✅${ROOT_SOL_DETAIL}] $MOD_INTRO"
-    fi
+    [ "$replaced_safetycore" = true ] && desc_safetycore=" ✅SafetyCore,"
+    [ "$replaced_keyverifier" = true ] && desc_keyverifier=" ✅KeyVerifier,"
 
+    [ "$checkout_count" -gt 0 ] && desc_schedule=" ✅$checkout_count time(s),"
+
+    DESCRIPTION="[${desc_work_mode}${desc_safetycore}${desc_keyverifier}${desc_schedule} ${ROOT_SOL_DETAIL}] $MOD_INTRO"
     update_key_value "description" "$MODULE_PROP" "$DESCRIPTION"
 
 }
@@ -222,6 +214,7 @@ checkout_modules_dir
 while true; do
 
     anti_safetycore
+    module_description_update
 
     [ -f "$MARK_KEEP_RUNNING" ] || exit 0
     [ -f "$MARK_SYSTEMIZE" ] || exit 0
