@@ -1,14 +1,16 @@
 ## Anti SafetyCore / 反 SafetyCore
 A Magisk module to fight against the behavior of installing Android System SafetyCore and Android System Key Verifier by Google quietly / 一个对抗 Google 静默安装 SafetyCore 和 Key Verifier 这一行为的 Magisk 模块
 
-### 1.2.0
+### 1.3.0
 
-- Fix issue #3
-> Optimize the uninstallation process for legacy placeholder apps on devices with encrypted data partitions
-> For devices with encrypted data partitions, always wait until the user has unlocked the screen for the first time before uninstalling the app, in order to fix the exit-status-20 issue that occurs during uninstallation on devices whose data partition has not yet been decrypted.
-- Add back /META-INF to module zip for compatibility
+- Add background daemon mode: The module will periodically check the status of SafetyCore and KeyVerifier components. If Google Play Services restores them, or if the existing components mismatch the placeholder app, the module will automatically uninstall and reinstall the placeholder.
+> Create an empty file `keep_running` (without extension) in `/data/adb/anti_safetycore/` to enable this feature
+- Add systemize mode: Mount placeholder apps as system apps to avoid Google Play Services aggressively restoring apps to original ones.
+> Create an empty file `systemize` (without extension) in `/data/adb/anti_safetycore/` to enable this feature
+- Action/open button: Now action/open button will uninstall current SafetyCore and KeyVerifier apps only
 ---
-- 修复问题 #3
-> 优化处理 data 分区加密的设备中的旧版本占位符 APP 的卸载流程
-> 对于 data 分区加密设备，在卸载 APP 前始终等待，直到用户第一次解锁屏幕后再卸载 APP 以修复在未解密 Data 分区的设备的卸载过程中退出状态码20的问题
-- 将 /META-INF 再度添加至模块 zip 以提升兼容性
+- 新增后台守护模式：模块将周期性检测 SafetyCore 与 KeyVerifier 组件状态，若发现被系统还原或版本与占位符应用不符则自动执行卸载与重装操作
+> 通过在 `/data/adb/anti_safetycore/` 下创建空文件 `keep_running` (无扩展名) 的方式启用该功能
+- 新增系统化模式：现在支持将占位符应用挂载为系统应用以避免 Google Play 服务激进地恢复应用为原版应用
+> 通过在 `/data/adb/anti_safetycore/` 下创建空文件 `systemize` (无扩展名) 的方式启用该功能
+- 操作/打开按钮：现在操作/打开按钮仅卸载当前 SafetyCore 和 KeyVerifier 应用
