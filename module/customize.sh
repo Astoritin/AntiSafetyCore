@@ -120,7 +120,6 @@ ui_print "- Root: $ROOT_SOL_DETAIL"
 rm -rf "$MOD_DIR_OLD" "$MOD_UPDATE_DIR_OLD" "$CONFIG_DIR_OLD" "$CONFIG_DIR" > /dev/null 2>&1
 init_dir "$PLACEHOLDER_DIR"
 extract "module.prop"
-[ "$DETECT_KSU" = true ] || [ "$DETECT_APATCH" = true ] && extract "post-fs-data.sh"
 extract "service.sh"
 extract "action.sh"
 extract "uninstall.sh"
@@ -132,8 +131,9 @@ extract "system/app/com.google.android.contactkeys/com.google.android.contactkey
 extract "system/app/com.google.android.safetycore/com.google.android.safetycore.apk"
 extract "system/app/com.google.android.contactkeys/com.google.android.contactkeys.apk" "$PLACEHOLDER_DIR" "true" > /dev/null 2>&1
 extract "system/app/com.google.android.safetycore/com.google.android.safetycore.apk" "$PLACEHOLDER_DIR" "true" > /dev/null 2>&1
-[ "$mark_keep_running" = false ] || touch "$MARK_KEEP_RUNNING"
-[ "$mark_systemize" = false ] || touch "$MARK_SYSTEMIZE" && touch "$MODPATH/skip_mount"
+[ "$mark_keep_running" = false ] || touch "$MARK_KEEP_RUNNING" 
+[ "$mark_systemize" = true ] && rm -f "$MODPATH/skip_mount" && touch "$MARK_SYSTEMIZE"
+[ "$mark_systemize" = false ] && touch "$MODPATH/skip_mount"
 ecol
 ecoe
 ecos "              NOTICE"

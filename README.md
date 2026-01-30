@@ -19,7 +19,7 @@ Even with its special system level permissions, Google can't do upgrade or downg
 This effectively blocks Google from repeatedly installing stuff like SafetyCore and Key Verifier on the sly.
 
 ## Configuration
-Since version 1.3.0, you can place **empty files (without extension)** with the following names in the configuration directory `/data/adb/anti_safetycore` to enable respective features:
+Since version 1.3.0, you can place **empty files (without extension)** with the following names in the configuration directory `/data/adb/anti_safetycore` to enable respective features (Reboot to take effect after creating file):
 1. **`keep_running`**: Enables background daemon mode. The module will periodically check the status of SafetyCore and KeyVerifier components. If Google Play Services restores them, or if the existing components mismatch the placeholder app, the module will automatically uninstall and reinstall the placeholder.
 2. **`systemize`**: Mount placeholder apps as system apps. In this mode, Google Play Services cannot forcibly uninstall or replace the placeholder, even with system-level permissions.
       
