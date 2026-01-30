@@ -120,6 +120,7 @@ ui_print "- Root: $ROOT_SOL_DETAIL"
 rm -rf "$MOD_DIR_OLD" "$MOD_UPDATE_DIR_OLD" "$CONFIG_DIR_OLD" "$CONFIG_DIR" > /dev/null 2>&1
 init_dir "$PLACEHOLDER_DIR"
 extract "module.prop"
+[ "$DETECT_KSU" = true ] || [ "$DETECT_APATCH" = true ] && extract "post-fs-data.sh"
 extract "service.sh"
 extract "action.sh"
 extract "uninstall.sh"
