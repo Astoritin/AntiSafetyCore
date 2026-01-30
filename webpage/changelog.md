@@ -7,11 +7,12 @@ A Magisk module to fight against the behavior of installing Android System Safet
 > Create an empty file `keep_running` (without extension) in `/data/adb/anti_safetycore/` to enable this feature
 - Add systemize mode: Mount placeholder apps as system apps to avoid Google Play Services aggressively restoring apps to original ones.
 > Create an empty file `systemize` (without extension) in `/data/adb/anti_safetycore/` to enable this feature
-- Action/open button: Now action/open button will uninstall current SafetyCore and KeyVerifier apps only   
+- Action/open button: Now action/open button will uninstall current SafetyCore and KeyVerifier app only   
    
 
 **Compatibility Notice**   
-For devices running KernelSU (KernelSU kernel version ≥ 22098) or APatch (APatch kernel version ≥ 11170), you must install the [Metamodule](https://kernelsu.org/guide/metamodule.html) to enable `systemize` feature. Without it, the placeholder will always be installed as a user app regardless of the configuration.
+For devices running KernelSU (KernelSU kernel version ≥ 22098) or APatch (APatch kernel version ≥ 11170), you must install the [Metamodule](https://kernelsu.org/guide/metamodule.html) to enable `systemize` feature. Without it, the placeholder will always be installed as user apps regardless of the configuration.   
+
 ***
 - 新增后台守护模式：模块将周期性检测 SafetyCore 与 KeyVerifier 组件状态，若发现被系统还原或版本与占位符应用不符则自动执行卸载与重装操作
 > 通过在 `/data/adb/anti_safetycore/` 下创建空文件 `keep_running` (无扩展名) 的方式启用该功能

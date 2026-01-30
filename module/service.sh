@@ -187,7 +187,7 @@ module_description_update() {
     if [ "$work_mode" = "system" ]; then
         desc_work_mode="✅Systemized."
     elif [ "$can_systemize" = false ]; then
-        desc_work_mode="💡Requires Metamodule to systemize. Reverted to user-app install."
+        desc_work_mode="💡Requires Metamodule to systemize. Installed as user apps for fallback."
     elif [ "$work_mode" = "user" ]; then
         desc_work_mode="✅Installed."
     fi
