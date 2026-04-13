@@ -18,6 +18,8 @@ MIN_VER_APATCH_TRY_METAMODULE=11170
 
 . "$MODDIR/wanderer.sh"
 
+msg() { log -p "${2:-i}" -t "$MOD_ID" "$1"; }
+
 check_data_encrypted() { [ "$data_state" = "encrypted" ]; }
 
 file_compare() {
