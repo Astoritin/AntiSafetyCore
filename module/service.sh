@@ -11,6 +11,7 @@ MARK_SYSTEMIZE="$CONFIG_DIR/systemize"
 
 MODULE_PROP="$MODDIR/module.prop"
 MOD_INTRO="GET LOST, SafetyCore & KeyVerifier!"
+MOD_ID="Anti_SafetyCore"
 LOCAL_TMP="/data/local/tmp"
 
 MIN_VER_KERNELSU_TRY_METAMODULE=22098
