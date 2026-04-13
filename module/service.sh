@@ -209,9 +209,10 @@ while [ "$(getprop sys.boot_completed)" != "1" ]; do
     sleep 1
 done
 
+msg "${MOD_ID} started"
+
 module_description_cleanup_schedule
 checkout_count=0
-checkout_modules_dir
 
 while true; do
 
