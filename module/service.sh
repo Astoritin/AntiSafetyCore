@@ -175,9 +175,12 @@ anti_safetycore() {
     install_env_check
 
     if [ -f "$MARK_SYSTEMIZE" ] && [ ! -e "$MODDIR/skip_mount" ]; then
+        msg "Current work mode: systemize"
         work_mode=system
         [ "$DETECT_KSU" = true ] && update_metamodule_description "$DETECT_KSU" "$KSU_KERNEL_VER_CODE" "$MIN_VER_KERNELSU_TRY_METAMODULE" "KernelSU"
         [ "$DETECT_APATCH" = true ] && update_metamodule_description "$DETECT_APATCH" "$APATCH_VER_CODE" "$MIN_VER_APATCH_TRY_METAMODULE" "APatch"
+    else
+        msg "Current work mode: user apps"
     fi
 
     checkout_app "com.google.android.safetycore" "$PLACEHOLDER_DIR/com.google.android.safetycore.apk" && replaced_safetycore=true
