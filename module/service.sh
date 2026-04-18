@@ -9,16 +9,16 @@ PLACEHOLDER_DIR="$CONFIG_DIR/placeholder"
 MARK_KEEP_RUNNING="$CONFIG_DIR/keep_running"
 MARK_SYSTEMIZE="$CONFIG_DIR/systemize"
 
-MODULE_PROP="$MODDIR/module.prop"
-MOD_INTRO="GET LOST, SafetyCore & KeyVerifier!"
-MOD_ID="Anti_SafetyCore"
+module_prop="$MODDIR/module.prop"
+module_id_for_log="Anti_SafetyCore"
+module_description="GET LOST, SafetyCore & KeyVerifier!"
 
 MIN_VER_KERNELSU_TRY_METAMODULE=22098
 MIN_VER_APATCH_TRY_METAMODULE=11170
 
 . "$MODDIR/wanderer.sh"
 
-msg() { log -p "${2:-i}" -t "$MOD_ID" "$1"; }
+msg() { log -p "${2:-i}" -t "$module_id_for_log" "$1"; }
 
 check_data_encrypted() { [ "$data_state" = "encrypted" ]; }
 
@@ -127,15 +127,21 @@ checkout_app() {
 
     if [ "$work_mode" = "user" ]; then
         existed_apk_path=$(fetch_app_path "$package_name")
+        msg "APK to install: $apk_to_install"
+        msg "APK existed: $existed_apk_path"
         if file_compare "$apk_to_install" "$existed_apk_path"; then
+            msg "They are same"
             return 0
         else
+            msg "They are different"
             let_us_do_it "$package_name" "$apk_to_install"
         fi
     elif [ "$work_mode" = "system" ]; then
         if check_system_app "$package_name"; then
+            msg "Systemized: $package_name"
             return 0
         fi
+        msg "${package_name}: not systemized"
         return 1
     fi
 
@@ -230,8 +236,8 @@ module_description_update() {
 
     [ "$checkout_count" -gt 0 ] && desc_schedule=" ✅$checkout_count time(s),"
 
-    DESCRIPTION="[${desc_work_mode}${desc_safetycore}${desc_keyverifier}${desc_schedule} ✅${ROOT_SOL_DETAIL}] $MOD_INTRO"
-    update_key_value "description" "$MODULE_PROP" "$DESCRIPTION"
+    DESCRIPTION="[${desc_work_mode}${desc_safetycore}${desc_keyverifier}${desc_schedule} ✅${ROOT_SOL_DETAIL}] $module_description"
+    update_key_value "description" "$module_prop" "$DESCRIPTION"
 
 }
 
@@ -239,7 +245,7 @@ while [ "$(getprop sys.boot_completed)" != "1" ]; do
     sleep 1
 done
 
-msg "${MOD_ID} started"
+msg "${module_id_for_log} started"
 
 module_description_cleanup_schedule
 checkout_count=0
