@@ -249,6 +249,7 @@ msg "Starting"
 
 module_description_cleanup_schedule
 checkout_count=0
+sleep_period=1800
 
 while true; do
 
@@ -257,7 +258,7 @@ while true; do
 
     if [ -f "$MARK_KEEP_RUNNING" ]; then
         msg "keep running at background: true"
-        msg "current checkout count: $checkout_count"
+        msg "current checkout count: ${checkout_count} (period: ${sleep_period})"
     else
         msg "keep running at background: false"
         msg "task finished, will exit soon"
@@ -271,7 +272,7 @@ while true; do
     fi
 
     checkout_count=$((checkout_count + 1))
-    sleep 1800
+    sleep "$sleep_period"
 
 done
 
