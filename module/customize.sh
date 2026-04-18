@@ -91,9 +91,7 @@ metamodule_required() {
         ecos "Current $4 requires metamodule"
         ecos "for mounting system files"
         ecos "Scanning metamodule"
-        ecoe
-        checkout_modules_dir
-        ecol;ecoe
+        ecoe;ecol;ecoe
         if ! scan_metamodule; then
             ecos "You haven't installed metamodule yet!"
             ecos "Only User app mode is available for $MOD_NAME"
@@ -162,7 +160,6 @@ ecoe
 ecos "        REBOOT TO TAKE EFFECT"
 ecoe
 ecol
-checkout_modules_dir
 [ "$DETECT_KSU" = true ] && metamodule_required "$DETECT_KSU" "$KSU_KERNEL_VER_CODE" "$MIN_VER_KERNELSU_TRY_METAMODULE" "KernelSU"
 [ "$DETECT_APATCH" = true ] && metamodule_required "$DETECT_APATCH" "$APATCH_VER_CODE" "$MIN_VER_APATCH_TRY_METAMODULE" "APatch"
 ui_print "- Setting permissions"

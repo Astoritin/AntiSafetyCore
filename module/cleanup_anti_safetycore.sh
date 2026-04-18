@@ -9,7 +9,6 @@ CLEANUP_PATH="${POST_D}/${CLEANUP_SH}"
 
 MODS_DIR="/data/adb/modules"
 MODS_UPDATE_DIR="/data/adb/modules_update"
-magisk -v | grep -q "lite" && { MODS_DIR="/data/adb/lite_modules"; MODS_UPDATE_DIR="/data/adb/lite_modules_update"; }
 
 MOD_ID="anti_safetycore"
 MOD_DIR="$MODS_DIR/$MOD_ID"

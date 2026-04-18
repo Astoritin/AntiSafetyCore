@@ -85,18 +85,6 @@ get_key_value() {
     [ $? -eq 0 ] || return 1
 }
 
-checkout_modules_dir() {
-
-    current_modules_dir="/data/adb/modules"
-    update_modules_dir="/data/adb/modules_update"
-
-    if magisk -v | grep -q "lite"; then
-        current_modules_dir="/data/adb/lite_modules"
-        update_modules_dir="/data/adb/lite_modules_update"
-    fi
-
-}
-
 scan_metamodule() {
 
     for moddir in "$current_modules_dir" "$update_modules_dir"; do
