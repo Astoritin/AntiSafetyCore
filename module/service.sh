@@ -167,11 +167,15 @@ check_screen_unlock() {
 
 update_metamodule_description() {
     
-    try_metamodule "$1" "$2" "$3" && scan_metamodule || {
+    if try_metamodule "$1" "$2" "$3" && scan_metamodule; then
+        msg "Meta module: ${current_module_name} ${current_module_ver_name} (${current_module_ver_code})"
+        return 0
+    else
+        msg "Meta module: -"
         work_mode="user"
         can_systemize=false
         return 1
-    }
+    fi
 
 }
 
