@@ -57,7 +57,7 @@ uninstall_app() {
     if [ "$result_uninstall_package" -eq 0 ]; then
         msg "Done"
     else
-        msg "Failed to uninstall ($result_uninstall_package)"
+        msg "Failed to uninstall ($result_uninstall_package)" "e"
     fi
 
     return "$result_uninstall_package"
@@ -72,7 +72,7 @@ install_apk() {
     if cp "$apk_path" "$tmp_path"; then
         msg "Copied ${apk_path} -> $tmp_path"
     else
-        msg "Failed to copy ${apk_path} -> ${tmp_path} ($?)"
+        msg "Failed to copy ${apk_path} -> ${tmp_path} ($?)" "e"
     fi
 
     package_basename=$(basename "$apk_path")
@@ -86,7 +86,7 @@ install_apk() {
     if [ "$result_install_package" -eq 0 ]; then
         msg "Installed ${apk_path}"
     else
-        msg "Failed to install ${apk_path} ($result_install_package)"
+        msg "Failed to install ${apk_path} ($result_install_package)" "e"
     fi
 
     return "$result_install_package"
@@ -141,7 +141,7 @@ checkout_app() {
             msg "Systemized: $package_name"
             return 0
         fi
-        msg "${package_name}: not systemized"
+        msg "${package_name}: not systemized" "e"
         return 1
     fi
 
@@ -245,7 +245,7 @@ while [ "$(getprop sys.boot_completed)" != "1" ]; do
     sleep 1
 done
 
-msg "${module_id_for_log} started"
+msg "Starting"
 
 module_description_cleanup_schedule
 checkout_count=0
@@ -255,9 +255,20 @@ while true; do
     anti_safetycore
     module_description_update
 
-    [ -f "$MARK_KEEP_RUNNING" ] || exit 0
-    [ "$work_mode" = "system" ] && exit 0
-    [ -e "$MODDIR/skip_mount" ] || exit 0
+    if [ -f "$MARK_KEEP_RUNNING" ]; then
+        msg "keep running at background: true"
+        msg "current checkout count: $checkout_count"
+    else
+        msg "keep running at background: false"
+        msg "task finished, will exit soon"
+        exit 0
+    fi
+    
+    if [ "$work_mode" = "system" ] && [ ! -e "$MODDIR/skip_mount" ]; then
+        msg "systemize mode: true"
+        msg "keep running at background is not needed, will exit soon"
+        exit 0
+    fi
 
     checkout_count=$((checkout_count + 1))
     sleep 1800
