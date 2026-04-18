@@ -88,6 +88,9 @@ get_key_value() {
 
 scan_metamodule() {
 
+    current_modules_dir="/data/adb/modules"
+    update_modules_dir="/data/adb/modules_update"
+
     for moddir in "$current_modules_dir" "$update_modules_dir"; do
         [ -d "$moddir" ] || continue
         for current_module_dir in "$moddir"/*; do

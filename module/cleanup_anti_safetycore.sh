@@ -7,13 +7,13 @@ POST_D="/data/adb/post-fs-data.d/"
 CLEANUP_SH="cleanup_anti_safetycore.sh"
 CLEANUP_PATH="${POST_D}/${CLEANUP_SH}"
 
-MODS_DIR="/data/adb/modules"
-MODS_UPDATE_DIR="/data/adb/modules_update"
+current_modules_dir="/data/adb/modules"
+update_modules_dir="/data/adb/modules_update"
 
-MOD_ID="anti_safetycore"
-MOD_DIR="$MODS_DIR/$MOD_ID"
-MOD_UPDATE_DIR="$MODS_UPDATE_DIR/$MOD_ID"
-MOD_DESC="GET LOST, SafetyCore & KeyVerifier!"
+module_id="anti_safetycore"
+module_dir="$current_modules_dir/$module_id"
+module_update_dir="$update_modules_dir/$module_id"
+module_description="GET LOST, SafetyCore & KeyVerifier!"
 
 update_key_value() {
     key="$1"
@@ -32,13 +32,13 @@ update_key_value() {
     fi
 }
 
-[ -f "$MOD_DIR/disable" ] && update_key_value "description" "$MOD_DIR/module.prop" "$MOD_DESC"
+[ -f "$module_dir/disable" ] && update_key_value "description" "$module_dir/module.prop" "$module_description"
 
 if [ -f "$MARK_SYSTEMIZE" ]; then
-    rm -f "$MOD_DIR/skip_mount" "$MOD_UPDATE_DIR/skip_mount"
+    rm -f "$module_dir/skip_mount" "$module_update_dir/skip_mount"
 else
-    touch "$MOD_UPDATE_DIR/skip_mount"
-    touch "$MOD_DIR/skip_mount"
+    touch "$module_update_dir/skip_mount"
+    touch "$module_dir/skip_mount"
 fi
 
 rm -f "${CLEANUP_PATH}"
