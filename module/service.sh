@@ -12,7 +12,6 @@ MARK_SYSTEMIZE="$CONFIG_DIR/systemize"
 MODULE_PROP="$MODDIR/module.prop"
 MOD_INTRO="GET LOST, SafetyCore & KeyVerifier!"
 MOD_ID="Anti_SafetyCore"
-LOCAL_TMP="/data/local/tmp"
 
 MIN_VER_KERNELSU_TRY_METAMODULE=22098
 MIN_VER_APATCH_TRY_METAMODULE=11170
@@ -47,27 +46,50 @@ uninstall_app() {
         while ! check_screen_unlock; do
             sleep 1
         done
+        msg "Screen unlocked and Data partition accessible"
+    else
+        msg "Data partition not encrypted"
     fi
 
     pm uninstall "$package_name"
+    result_uninstall_package=$?
+
+    if [ "$result_uninstall_package" -eq 0 ]; then
+        msg "Done"
+    else
+        msg "Failed to uninstall ($result_uninstall_package)"
+    fi
+
+    return "$result_uninstall_package"
 
 }
 
 install_apk() {
 
     apk_path="$1"
+    tmp_path="/data/local/tmp"
 
-    cp "$apk_path" "/data/local/tmp"
+    if cp "$apk_path" "$tmp_path"; then
+        msg "Copied ${apk_path} -> $tmp_path"
+    else
+        msg "Failed to copy ${apk_path} -> ${tmp_path} ($?)"
+    fi
 
     package_basename=$(basename "$apk_path")
-    apk_path="/data/local/tmp/$package_basename"
+    apk_path="$tmp_path/$package_basename"
 
     pm install -i "com.android.vending" "$apk_path"
     result_install_package=$?
 
     rm -f "$apk_path"
-    return "$result_install_package"
 
+    if [ "$result_install_package" -eq 0 ]; then
+        msg "Installed ${apk_path}"
+    else
+        msg "Failed to install ${apk_path} ($result_install_package)"
+    fi
+
+    return "$result_install_package"
 }
 
 let_us_do_it() {
@@ -75,6 +97,8 @@ let_us_do_it() {
     package_name=$1
     apk_to_install=$2
 
+    msg "Checkout: $package_name"
+    msg "Checkout: $apk_to_install"
     uninstall_app "$package_name"
     install_apk "$apk_to_install"
 
@@ -175,13 +199,12 @@ anti_safetycore() {
     install_env_check
 
     if [ -f "$MARK_SYSTEMIZE" ] && [ ! -e "$MODDIR/skip_mount" ]; then
-        msg "Current work mode: systemize"
         work_mode=system
         [ "$DETECT_KSU" = true ] && update_metamodule_description "$DETECT_KSU" "$KSU_KERNEL_VER_CODE" "$MIN_VER_KERNELSU_TRY_METAMODULE" "KernelSU"
         [ "$DETECT_APATCH" = true ] && update_metamodule_description "$DETECT_APATCH" "$APATCH_VER_CODE" "$MIN_VER_APATCH_TRY_METAMODULE" "APatch"
-    else
-        msg "Current work mode: user apps"
     fi
+
+    msg "Current work mode: $work_mode"
 
     checkout_app "com.google.android.safetycore" "$PLACEHOLDER_DIR/com.google.android.safetycore.apk" && replaced_safetycore=true
     checkout_app "com.google.android.contactkeys" "$PLACEHOLDER_DIR/com.google.android.contactkeys.apk" && replaced_keyverifier=true
