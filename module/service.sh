@@ -178,6 +178,7 @@ update_metamodule_description() {
         return 0
     else
         msg "Meta module: -"
+        msg "will revert to user apps mode"
         work_mode="user"
         can_systemize=false
         return 1
@@ -257,17 +258,17 @@ while true; do
     module_description_update
 
     if [ -f "$MARK_KEEP_RUNNING" ]; then
-        msg "keep running at background: true"
+        msg "keep running in the background: true"
         msg "current checkout count: ${checkout_count} (period: ${sleep_period})"
     else
-        msg "keep running at background: false"
+        msg "keep running in the background: false"
         msg "task finished, will exit soon"
         exit 0
     fi
     
     if [ "$work_mode" = "system" ] && [ ! -e "$MODDIR/skip_mount" ]; then
         msg "systemize mode: true"
-        msg "keep running at background is not needed, will exit soon"
+        msg "keep running in the background is not needed, exiting"
         exit 0
     fi
 
